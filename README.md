@@ -6,7 +6,7 @@ This project investigates how air pollution impacts respiratory health in U.S. c
 ---
 
 ### **Essential Question**  
-**"Does poor air quality increase the rate of respiratory illnesses in U.S. cities?"**  
+**"Is there a correlation between diminished air quality and respiratory illness rates across U.S. urban areas?"**  
 
 ---
 
