@@ -1,0 +1,383 @@
+STATE,YEAR,LEVEL
+Alabama,2022,4.2115
+Alabama,2021,2.2692
+Alabama,2020,1.2115
+Alabama,2019,5.2692
+Alabama,2018,4.3846
+Alabama,2017,3.8269
+Alabama,2016,3.7115
+Alaska,2022,1.4615
+Alaska,2021,1.2308
+Alaska,2020,0.9623
+Alaska,2019,2.6154
+Alaska,2018,2.8846
+Alaska,2017,4.2115
+Alaska,2016,2.8462
+Arizona,2022,2.2308
+Arizona,2021,1.5769
+Arizona,2020,1.0755
+Arizona,2019,3.4038
+Arizona,2018,3.2308
+Arizona,2017,4.6731
+Arizona,2016,2.8846
+Arkansas,2022,3.8077
+Arkansas,2021,2.9423
+Arkansas,2020,1.3962
+Arkansas,2019,4.4231
+Arkansas,2018,3.3077
+Arkansas,2017,3.4423
+Arkansas,2016,2.8269
+California,2022,5.8654
+California,2021,2.0577
+California,2020,1.3774
+California,2019,3.6538
+California,2018,2.6731
+California,2017,3.4038
+California,2016,2.3077
+Colorado,2022,4.3462
+Colorado,2021,2.9038
+Colorado,2020,1.0377
+Colorado,2019,4.8269
+Colorado,2018,4.6154
+Colorado,2017,2.9038
+Colorado,2016,2.4423
+Commonwealth of the Northern Mariana Islands,2022,2.0385
+Commonwealth of the Northern Mariana Islands,2021,1.7255
+Commonwealth of the Northern Mariana Islands,2020,1.1887
+Commonwealth of the Northern Mariana Islands,2019,1.3409
+Connecticut,2022,3.9038
+Connecticut,2021,2.4615
+Connecticut,2020,1.0755
+Connecticut,2019,5.3846
+Connecticut,2018,2.8462
+Connecticut,2017,2.6154
+Connecticut,2016,1.5962
+Delaware,2022,1.9615
+Delaware,2021,1.9038
+Delaware,2020,1.0755
+Delaware,2019,2.0192
+Delaware,2018,1.2885
+Delaware,2017,1.75
+Delaware,2016,1
+District of Columbia,2022,8.4423
+District of Columbia,2021,4.3269
+District of Columbia,2020,1.5283
+District of Columbia,2019,4.1538
+District of Columbia,2018,2.4615
+District of Columbia,2017,2.8654
+District of Columbia,2016,0
+Florida,2022,4.7885
+Florida,2021,4.75
+Florida,2020,1.9811
+Florida,2019,4.3462
+Florida,2018,1.9423
+Florida,2017,2.2885
+Florida,2016,1.8654
+Georgia,2022,4.6538
+Georgia,2021,4.1346
+Georgia,2020,2.5094
+Georgia,2019,5.9423
+Georgia,2018,4.75
+Georgia,2017,4.5577
+Georgia,2016,4.6154
+Hawaii,2022,3.25
+Hawaii,2021,1.4615
+Hawaii,2020,1
+Hawaii,2019,2.3654
+Hawaii,2018,1.9615
+Hawaii,2017,2.5769
+Hawaii,2016,1.7308
+Idaho,2022,2.7115
+Idaho,2021,2.8654
+Idaho,2020,1.8302
+Idaho,2019,3.0577
+Idaho,2018,1.6923
+Idaho,2017,1.4423
+Idaho,2016,1.1538
+Illinois,2022,3.4423
+Illinois,2021,2.4038
+Illinois,2020,1
+Illinois,2019,4.7115
+Illinois,2018,2.5769
+Illinois,2017,3.1923
+Illinois,2016,2.7115
+Indiana,2022,3.7692
+Indiana,2021,2.5192
+Indiana,2020,1.6604
+Indiana,2019,3.2308
+Indiana,2018,3.3462
+Indiana,2017,3.4808
+Indiana,2016,2.6923
+Iowa,2022,2.4038
+Iowa,2021,2.6923
+Iowa,2020,1.8113
+Iowa,2019,4.1154
+Iowa,2018,2.3462
+Iowa,2017,2
+Iowa,2016,1.5
+Kansas,2022,2.8269
+Kansas,2021,2.8269
+Kansas,2020,1.6226
+Kansas,2019,4.75
+Kansas,2018,3.0769
+Kansas,2017,3.5385
+Kansas,2016,3
+Kentucky,2022,4.1923
+Kentucky,2021,3.5192
+Kentucky,2020,1.6792
+Kentucky,2019,4.6731
+Kentucky,2018,3.6154
+Kentucky,2017,4.0962
+Kentucky,2016,3.5962
+Louisiana,2022,3.8269
+Louisiana,2021,2.2308
+Louisiana,2020,1
+Louisiana,2019,7.5577
+Louisiana,2018,5.4808
+Louisiana,2017,4.4423
+Louisiana,2016,3.4038
+Maine,2022,2.8077
+Maine,2021,1.9231
+Maine,2020,1.0189
+Maine,2019,3.3846
+Maine,2018,2.3846
+Maine,2017,1.0577
+Maine,2016,1.0962
+Maryland,2022,3.8846
+Maryland,2021,2.7885
+Maryland,2020,1.566
+Maryland,2019,5.3462
+Maryland,2018,2.6923
+Maryland,2017,2.4038
+Maryland,2016,2.0962
+Massachusetts,2022,3.5
+Massachusetts,2021,3.0769
+Massachusetts,2020,1.0566
+Massachusetts,2019,4.5385
+Massachusetts,2018,2.9038
+Massachusetts,2017,3.3462
+Massachusetts,2016,1.8654
+Michigan,2022,1.9038
+Michigan,2021,1.5385
+Michigan,2020,1
+Michigan,2019,2.4808
+Michigan,2018,1.8077
+Michigan,2017,2.9615
+Michigan,2016,2.2692
+Minnesota,2022,1.8077
+Minnesota,2021,2.7115
+Minnesota,2020,1
+Minnesota,2019,3.7308
+Minnesota,2018,3.0962
+Minnesota,2017,3.0385
+Minnesota,2016,2.0769
+Mississippi,2022,4.3654
+Mississippi,2021,3.4615
+Mississippi,2020,1.566
+Mississippi,2019,4.9231
+Mississippi,2018,3.4231
+Mississippi,2017,4.1154
+Mississippi,2016,3.4038
+Missouri,2022,3.5385
+Missouri,2021,3.25
+Missouri,2020,2.3019
+Missouri,2019,3.2692
+Missouri,2018,3.2692
+Missouri,2017,3.1923
+Missouri,2016,2.8462
+Montana,2022,2.0385
+Montana,2021,1.4808
+Montana,2020,1.0566
+Montana,2019,2.6346
+Montana,2018,2.0192
+Montana,2017,0.9808
+Montana,2016,1
+Nebraska,2022,3.9423
+Nebraska,2021,2.6538
+Nebraska,2020,1.2642
+Nebraska,2019,4.5769
+Nebraska,2018,3.0385
+Nebraska,2017,3.8654
+Nebraska,2016,1.5769
+Nevada,2022,1.5577
+Nevada,2021,3.8846
+Nevada,2020,2.0377
+Nevada,2019,2.5192
+Nevada,2018,2.4808
+Nevada,2017,2.6346
+Nevada,2016,1.6923
+New Hampshire,2022,1.4231
+New Hampshire,2021,1.4423
+New Hampshire,2020,1
+New Hampshire,2019,2.4231
+New Hampshire,2018,1.8077
+New Hampshire,2017,2.2308
+New Hampshire,2016,1.2885
+New Jersey,2022,4.9808
+New Jersey,2021,4.0577
+New Jersey,2020,1.8679
+New Jersey,2019,5.4615
+New Jersey,2018,4.0192
+New Jersey,2017,3.4038
+New Jersey,2016,3.2692
+New Mexico,2022,6.6538
+New Mexico,2021,7.75
+New Mexico,2020,2.717
+New Mexico,2019,5.1731
+New Mexico,2018,3.7885
+New Mexico,2017,3.8846
+New Mexico,2016,2.25
+New York,2022,4.2692
+New York,2021,4
+New York,2020,1.4717
+New York,2019,4.5962
+New York,2018,3.1346
+New York,2017,2.7885
+New York,2016,2.8846
+New York City,2022,8.1154
+New York City,2021,3.2885
+New York City,2020,1.2453
+New York City,2019,5.2308
+New York City,2018,3.7692
+New York City,2017,3.4615
+New York City,2016,3.1538
+North Carolina,2022,4.5192
+North Carolina,2021,2.7885
+North Carolina,2020,1.7358
+North Carolina,2019,4.1538
+North Carolina,2018,3.3846
+North Carolina,2017,2.7692
+North Carolina,2016,2.7692
+North Dakota,2022,4.24
+North Dakota,2021,3
+North Dakota,2020,1.6415
+North Dakota,2019,3.8269
+North Dakota,2018,1.9423
+North Dakota,2017,1.5769
+North Dakota,2016,1.5962
+Ohio,2022,2.9423
+Ohio,2021,1.7308
+Ohio,2020,1.3019
+Ohio,2019,2.5
+Ohio,2018,1.7115
+Ohio,2017,2.1154
+Ohio,2016,1.6538
+Oklahoma,2022,3.8269
+Oklahoma,2021,3.6923
+Oklahoma,2020,1.717
+Oklahoma,2019,5.3846
+Oklahoma,2018,3.9615
+Oklahoma,2017,3.48
+Oklahoma,2016,3.9615
+Oregon,2022,2.7885
+Oregon,2021,2.1154
+Oregon,2020,1.5094
+Oregon,2019,4.1538
+Oregon,2018,2.8462
+Oregon,2017,3.3077
+Oregon,2016,1.9808
+Pennsylvania,2022,3.1346
+Pennsylvania,2021,2.25
+Pennsylvania,2020,1.5094
+Pennsylvania,2019,4.25
+Pennsylvania,2018,3.1154
+Pennsylvania,2017,3.1923
+Pennsylvania,2016,2.5192
+Puerto Rico,2022,2.1154
+Puerto Rico,2021,5.4615
+Puerto Rico,2020,1.3396
+Puerto Rico,2019,7.3462
+Puerto Rico,2018,3.7885
+Puerto Rico,2017,3.4038
+Puerto Rico,2016,3.2885
+Rhode Island,2022,2.9423
+Rhode Island,2021,2.3462
+Rhode Island,2020,1.0189
+Rhode Island,2019,3.25
+Rhode Island,2018,3.4808
+Rhode Island,2017,2.8846
+Rhode Island,2016,2.5769
+South Carolina,2022,4.9808
+South Carolina,2021,2.6923
+South Carolina,2020,1.283
+South Carolina,2019,5.9231
+South Carolina,2018,4.4231
+South Carolina,2017,4.8077
+South Carolina,2016,3.9038
+South Dakota,2022,1.8462
+South Dakota,2021,1.5577
+South Dakota,2020,1.0566
+South Dakota,2019,3.0769
+South Dakota,2018,1.6667
+South Dakota,2017,3.6731
+South Dakota,2016,2.2692
+Tennessee,2022,4.5962
+Tennessee,2021,2.7692
+Tennessee,2020,1.5472
+Tennessee,2019,5.3077
+Tennessee,2018,2.1731
+Tennessee,2017,2.5385
+Tennessee,2016,3.3269
+Texas,2022,5.8077
+Texas,2021,4.5
+Texas,2020,1.6981
+Texas,2019,5.5577
+Texas,2018,3.9231
+Texas,2017,3.6731
+Texas,2016,2.4423
+Utah,2022,3.0192
+Utah,2021,3.1176
+Utah,2020,1.1132
+Utah,2019,4.0962
+Utah,2018,4.0192
+Utah,2017,1.902
+Utah,2016,1.7692
+Vermont,2022,1.9038
+Vermont,2021,1.3269
+Vermont,2020,1.283
+Vermont,2019,3.6538
+Vermont,2018,2.5577
+Vermont,2017,2.5577
+Vermont,2016,1
+Virgin Islands,2022,1.5769
+Virgin Islands,2021,0.9231
+Virgin Islands,2020,0.9434
+Virgin Islands,2019,0.9423
+Virgin Islands,2018,1
+Virgin Islands,2017,0.4423
+Virgin Islands,2016,0
+Virginia,2022,5.5192
+Virginia,2021,4.0769
+Virginia,2020,1.5962
+Virginia,2019,5.4038
+Virginia,2018,4.3846
+Virginia,2017,4.0192
+Virginia,2016,3.4423
+Washington,2022,2.7692
+Washington,2021,2.25
+Washington,2020,1
+Washington,2019,4.8462
+Washington,2018,2.1923
+Washington,2017,2.25
+Washington,2016,1.5577
+West Virginia,2022,3.5
+West Virginia,2021,1.2885
+West Virginia,2020,1.0566
+West Virginia,2019,3.7115
+West Virginia,2018,2.75
+West Virginia,2017,3.0577
+West Virginia,2016,1.7115
+Wisconsin,2022,2.7692
+Wisconsin,2021,1.8654
+Wisconsin,2020,1.283
+Wisconsin,2019,4.9231
+Wisconsin,2018,2.8462
+Wisconsin,2017,2.5577
+Wisconsin,2016,1.5192
+Wyoming,2022,2.9231
+Wyoming,2021,3.0385
+Wyoming,2020,1.3585
+Wyoming,2019,3.3846
+Wyoming,2018,2.7115
+Wyoming,2017,3.6154
+Wyoming,2016,1.9231
