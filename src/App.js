@@ -1,10 +1,10 @@
 import React from 'react';
-import D3TimeSeriesChart from './D3TimeSeriesChart';
+import RespiratoryChart from './RespiratoryChart/RespiratoryChart';
 
 function App() {
   return (
     <div className="App">
-      <D3TimeSeriesChart />
+      <RespiratoryChart />
     </div>
   );
 }
