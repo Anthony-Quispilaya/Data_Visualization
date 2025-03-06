@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
 import Papa from 'papaparse';
 import _ from 'lodash';
-import './RespiratoryChart.css';
+import '/RespiratoryChart.css';
 
 const color = [
   '#B8B1E5', // New Mexico

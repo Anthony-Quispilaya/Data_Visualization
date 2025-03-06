@@ -1,10 +1,10 @@
 import React from 'react';
-import RespiratoryChart from './RespiratoryChart/RespiratoryChart';
-
+/* import RespiratoryChart from './RespiratoryChart/RespiratoryChart'; */
+import InfluenzaChart from './InfluenzaChart/InfluenzaChart';
 function App() {
   return (
     <div className="App">
-      <RespiratoryChart />
+      <InfluenzaChart />
     </div>
   );
 }
