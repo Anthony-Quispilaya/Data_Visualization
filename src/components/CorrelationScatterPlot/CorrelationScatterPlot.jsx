@@ -9,6 +9,8 @@ const CorrelationScatterPlot = () => {
   const [availablePollutants, setAvailablePollutants] = useState(['PM2.5']);
   const [airQualityData, setAirQualityData] = useState([]);
   const [respiratoryData, setRespiratoryData] = useState([]);
+  const [correlationData, setCorrelationData] = useState([]);
+  const [correlationCoefficient, setCorrelationCoefficient] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
   // Load the data files
@@ -94,12 +96,137 @@ const CorrelationScatterPlot = () => {
     return stateNameToCode[stateName];
   };
 
+  // Helper to get state name from code
+  const getStateNameFromCode = (stateCode) => {
+    const stateCodeToName = {
+      'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
+      'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia',
+      'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa',
+      'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+      'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri',
+      'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey',
+      'NM': 'New Mexico', 'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio',
+      'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+      'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
+      'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming',
+      'DC': 'District of Columbia'
+    };
+    
+    return stateCodeToName[stateCode] || stateCode;
+  };
+
+  // Prepare correlation data when year, pollutant, or base data changes
+  useEffect(() => {
+    if (airQualityData.length === 0 || respiratoryData.length === 0 || isLoading) {
+      return;
+    }
+    
+    // Filter air quality data for the selected pollutant and year
+    const aqFiltered = airQualityData.filter(
+      item => item.pollutant === selectedPollutant && item.year === selectedYear
+    );
+    
+    // Filter respiratory data for the selected year
+    const respFiltered = respiratoryData.filter(
+      item => item.year === selectedYear
+    );
+    
+    // Build correlation data points - only include states that have both metrics
+    const dataPoints = [];
+    
+    // Create a map for faster lookups
+    const aqByState = {};
+    aqFiltered.forEach(item => {
+      aqByState[item.state] = item.value;
+    });
+    
+    // Find matching respiratory data
+    respFiltered.forEach(respItem => {
+      if (aqByState[respItem.state]) {
+        dataPoints.push({
+          state: respItem.state,
+          stateName: respItem.stateName || getStateNameFromCode(respItem.state),
+          airQualityValue: aqByState[respItem.state],
+          respiratoryIndex: respItem.level
+        });
+      }
+    });
+    
+    console.log(`Found ${dataPoints.length} states with both ${selectedPollutant} and respiratory data for ${selectedYear}`);
+    if (dataPoints.length > 0) {
+      console.log("States with data:", dataPoints.map(d => d.state).join(", "));
+    }
+    
+    setCorrelationData(dataPoints);
+    
+    // Calculate Pearson correlation coefficient if we have enough data points
+    if (dataPoints.length > 1) {
+      const correlation = calculateCorrelation(
+        dataPoints.map(d => d.airQualityValue),
+        dataPoints.map(d => d.respiratoryIndex)
+      );
+      setCorrelationCoefficient(correlation);
+      console.log(`Correlation coefficient for ${selectedPollutant} (${selectedYear}): ${correlation.toFixed(3)}`);
+    } else {
+      setCorrelationCoefficient(null);
+    }
+  }, [airQualityData, respiratoryData, selectedYear, selectedPollutant, isLoading]);
+
+  // Calculate Pearson correlation coefficient
+  const calculateCorrelation = (x, y) => {
+    const n = x.length;
+    
+    // Mean of x and y
+    const xMean = x.reduce((a, b) => a + b, 0) / n;
+    const yMean = y.reduce((a, b) => a + b, 0) / n;
+    
+    // Calculate numerator and denominators
+    let numerator = 0;
+    let xDenominator = 0;
+    let yDenominator = 0;
+    
+    for (let i = 0; i < n; i++) {
+      const xDiff = x[i] - xMean;
+      const yDiff = y[i] - yMean;
+      numerator += xDiff * yDiff;
+      xDenominator += xDiff * xDiff;
+      yDenominator += yDiff * yDiff;
+    }
+    
+    // Calculate correlation coefficient
+    const denominator = Math.sqrt(xDenominator * yDenominator);
+    return denominator === 0 ? 0 : numerator / denominator;
+  };
+
+  // Helper to describe correlation strength
+  const getCorrelationDescription = (r) => {
+    const absR = Math.abs(r);
+    if (absR < 0.2) return "very weak";
+    if (absR < 0.4) return "weak";
+    if (absR < 0.6) return "moderate";
+    if (absR < 0.8) return "strong";
+    return "very strong";
+  };
+  
+  // Get correlation type (positive or negative)
+  const getCorrelationType = (r) => {
+    if (r === 0) return "no";
+    return r > 0 ? "positive" : "negative";
+  };
+
   const handleYearChange = (e) => {
     setSelectedYear(Number(e.target.value));
   };
   
   const handlePollutantChange = (e) => {
     setSelectedPollutant(e.target.value);
+  };
+
+  // Get the appropriate units for the selected pollutant
+  const getPollutantUnits = (pollutant) => {
+    if (pollutant === 'PM2.5' || pollutant === 'PM10') return 'μg/m³';
+    if (pollutant === 'O3' || pollutant === 'CO') return 'ppm';
+    return 'ppb';
   };
 
   return (
@@ -147,12 +274,61 @@ const CorrelationScatterPlot = () => {
       {isLoading ? (
         <div className="loading-indicator">Loading data...</div>
       ) : (
-        <div className="chart-container">
-          <p>Selected Year: {selectedYear}, Selected Pollutant: {selectedPollutant}</p>
-          <p>Air Quality Data: {airQualityData.length} records</p>
-          <p>Respiratory Data: {respiratoryData.length} records</p>
-          <p>Data visualization coming soon...</p>
-        </div>
+        <>
+          {correlationData.length > 1 && correlationCoefficient !== null ? (
+            <div className="correlation-stats">
+              <p>
+                <strong>Number of States with Data:</strong> {correlationData.length}
+              </p>
+              <p>
+                <strong>Correlation Coefficient (r):</strong> {correlationCoefficient.toFixed(3)}
+              </p>
+              <p>
+                <strong>Interpretation:</strong> Data shows a {getCorrelationDescription(correlationCoefficient)} {getCorrelationType(correlationCoefficient)} correlation 
+                between {selectedPollutant} levels and respiratory illness rates.
+              </p>
+              <p>
+                <strong>Relationship:</strong> {correlationCoefficient > 0 
+                  ? "As air pollution increases, respiratory health issues tend to increase." 
+                  : "As air pollution increases, respiratory health issues tend to decrease."}
+              </p>
+              <p className="correlation-note">
+                <em>Note: Correlation does not necessarily imply causation. Other factors may influence these relationships.</em>
+              </p>
+            </div>
+          ) : (
+            <div className="correlation-stats">
+              <p>
+                <strong>Insufficient Data:</strong> Not enough states have both {selectedPollutant} and respiratory data for {selectedYear} to calculate a meaningful correlation.
+              </p>
+              <p>
+                Try selecting a different pollutant or year.
+              </p>
+            </div>
+          )}
+          
+          <div className="chart-container">
+            {correlationData.length > 1 ? (
+              <p>Scatter plot visualization coming in the next step...</p>
+            ) : (
+              <div className="no-data-message">
+                <p>Insufficient data to display the scatter plot for {selectedPollutant} in {selectedYear}.</p>
+                <p>Please select a different pollutant or year.</p>
+              </div>
+            )}
+          </div>
+
+          <div className="correlation-explanation">
+            <h3>Understanding This Chart</h3>
+            <p>
+              Each point represents a U.S. state, showing the relationship between {selectedPollutant} levels ({getPollutantUnits(selectedPollutant)}) and respiratory illness indices (0-8 scale).
+              The red line represents the trend line based on this data. A steeper slope indicates a stronger relationship.
+            </p>
+            <p>
+              <strong>Hover over any point</strong> to see detailed information for that state.
+            </p>
+          </div>
+        </>
       )}
     </div>
   );

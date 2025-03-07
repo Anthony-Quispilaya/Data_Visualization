@@ -56,6 +56,51 @@
   text-align: center;
 }
 
+.correlation-stats {
+  background-color: #f5f9ff;
+  border-left: 4px solid #4285F4;
+  padding: 15px;
+  border-radius: 4px;
+  margin-bottom: 20px;
+}
+
+.correlation-stats p {
+  margin: 8px 0;
+}
+
+.correlation-note {
+  font-size: 0.9em;
+  color: #666;
+  margin-top: 10px;
+}
+
+.correlation-explanation {
+  margin-top: 20px;
+  padding: 15px;
+  background-color: #f8f8f8;
+  border-radius: 4px;
+}
+
+.correlation-explanation h3 {
+  margin-top: 0;
+  font-size: 16px;
+  color: #444;
+}
+
+.no-data-message {
+  text-align: center;
+  background-color: #f9f9f9;
+  border: 1px dashed #ddd;
+  border-radius: 8px;
+  padding: 30px;
+  margin: 20px 0;
+  color: #666;
+}
+
+.no-data-message p {
+  margin: 10px 0;
+}
+
 .loading-indicator {
   text-align: center;
   padding: 40px;
