@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import Papa from 'papaparse';
+import './EnhancedUSMap.css';
 
 const EnhancedUSMap = () => {
   const [selectedState, setSelectedState] = useState(null);
