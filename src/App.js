@@ -3,6 +3,7 @@ import RespiratoryChart from './RespiratoryChart/RespiratoryChart';
 import InfluenzaChart from './InfluenzaChart/InfluenzaChart';
 import AirQualityDashboard from './AirQuality/AirQualityDashboard';
 import EnhancedUSMap from './components/USMap/EnhancedUSMap';
+import CorrelationScatterPlot from './components/CorrelationScatterPlot/CorrelationScatterPlot';
 import { DataProvider } from './DataContext';
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
           <RespiratoryChart />
           <InfluenzaChart />
           <AirQualityDashboard />
+          <CorrelationScatterPlot />
         </div>
       </div>
     </DataProvider>
