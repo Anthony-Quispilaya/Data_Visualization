@@ -1,4 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
+import { useHealthData } from '../../DataContext';
 import Papa from 'papaparse';
 import './EnhancedUSMap.css';
 
@@ -10,12 +11,36 @@ const EnhancedUSMap = () => {
   const [selectedPollutant, setSelectedPollutant] = useState('PM2.5'); // Default pollutant
   const [selectedYear, setSelectedYear] = useState(2022); // Default to most recent year
   const [currentData, setCurrentData] = useState(null);
+  const [stateTimeSeries, setStateTimeSeries] = useState(null);
   const [airQualityData, setAirQualityData] = useState([]);
   const [isPaused, setIsPaused] = useState(true);
-  const [scriptLoaded, setScriptLoaded] = useState(false);
+  const [animationInterval, setAnimationInterval] = useState(null);
   const [isAqDataLoaded, setIsAqDataLoaded] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
   const mapRef = useRef(null);
+  const [scriptLoaded, setScriptLoaded] = useState(false);
+  
+  // Use the health data context
+  const { timeSeriesData, availableYears, isLoading: dataLoading, error } = useHealthData();
+
+  // Update current data when year or visualization mode changes
+  useEffect(() => {
+    if (timeSeriesData && timeSeriesData[selectedYear]) {
+      setCurrentData(timeSeriesData[selectedYear]);
+    }
+  }, [timeSeriesData, selectedYear, visualizationMode, selectedPollutant]);
+  
+  // Update state time series data when state or time series data changes
+  useEffect(() => {
+    if (selectedState && timeSeriesData) {
+      const timeSeries = {};
+      availableYears.forEach(year => {
+        if (timeSeriesData[year] && timeSeriesData[year][selectedState]) {
+          timeSeries[year] = timeSeriesData[year][selectedState];
+        }
+      });
+      setStateTimeSeries(timeSeries);
+    }
+  }, [selectedState, timeSeriesData, availableYears, selectedPollutant]);
   
   // Available pollutants
   const pollutants = ['PM2.5', 'O3', 'CO', 'PM10', 'SO2', 'NO2'];
@@ -134,10 +159,10 @@ const EnhancedUSMap = () => {
 
   // Initialize the map once script is loaded and data is ready
   useEffect(() => {
-    if (scriptLoaded && mapRef.current && !isLoading) {
+    if (scriptLoaded && mapRef.current && !dataLoading) {
       initMap();
     }
-  }, [scriptLoaded, isLoading]);
+  }, [scriptLoaded, dataLoading]);
 
   // Initialize the Google Map
   const initMap = async () => {
@@ -257,12 +282,9 @@ const EnhancedUSMap = () => {
     setIsPaused(!isPaused);
   };
 
-  if (isLoading) {
+  if (dataLoading || isAqDataLoaded === false) {
     return <div className="loading-indicator">Loading map data...</div>;
   }
-
-  // Define available years for the slider and time controls
-  const availableYears = [2016, 2017, 2018, 2019, 2020, 2021, 2022];
 
   return (
     <div className="enhanced-us-map-container">
