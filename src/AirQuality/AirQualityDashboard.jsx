@@ -1,14 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import Papa from 'papaparse';
+import React, { useState } from 'react';
 import { 
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, 
   Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
+import { useHealthData } from '../DataContext';
 import './AirQualityDashboard.css';
 
 const AirQualityDashboard = () => {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { airQualityData, isLoading } = useHealthData();
   const [selectedPollutant, setSelectedPollutant] = useState('PM2.5');
   const [selectedView, setSelectedView] = useState('trends');
   
@@ -29,45 +28,17 @@ const AirQualityDashboard = () => {
     'SO2': 'ppb',
     'NO2': 'ppb'
   };
-  
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/data3.csv');
-        const fileContent = await response.text();
-        
-        Papa.parse(fileContent, {
-          header: true,
-          dynamicTyping: true,
-          skipEmptyLines: true,
-          complete: (results) => {
-            setData(results.data);
-            setLoading(false);
-          },
-          error: (error) => {
-            console.error('Error parsing CSV:', error);
-            setLoading(false);
-          }
-        });
-      } catch (error) {
-        console.error('Error reading file:', error);
-        setLoading(false);
-      }
-    };
-
-    fetchData();
-  }, []);
 
   // Process data for national trends over time
   const getNationalTrends = () => {
     const yearColumns = ['2016', '2017', '2018', '2019', '2020', '2021', '2022'];
-    const pollutants = [...new Set(data.map(row => row.Pollutant))];
+    const pollutants = [...new Set(airQualityData.map(row => row.Pollutant))];
     
     const nationalTrends = yearColumns.map(year => {
       const yearData = { year };
       
       pollutants.forEach(pollutant => {
-        const pollutantData = data.filter(row => row.Pollutant === pollutant);
+        const pollutantData = airQualityData.filter(row => row.Pollutant === pollutant);
         const validData = pollutantData.filter(row => row[year] !== null);
         
         if (validData.length > 0) {
@@ -85,7 +56,7 @@ const AirQualityDashboard = () => {
   // Process data for pollutant comparison by state
   const getStateComparison = () => {
     if (selectedPollutant) {
-      const pollutantData = data.filter(row => row.Pollutant === selectedPollutant && row['2022'] !== null);
+      const pollutantData = airQualityData.filter(row => row.Pollutant === selectedPollutant && row['2022'] !== null);
       return pollutantData.map(row => ({
         state: row.State,
         value: row['2022']
@@ -94,7 +65,7 @@ const AirQualityDashboard = () => {
     return [];
   };
 
-  if (loading) {
+  if (isLoading) {
     return <div className="loading">Loading air quality data...</div>;
   }
 
