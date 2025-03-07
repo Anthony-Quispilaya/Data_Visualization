@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import Papa from 'papaparse';
+import './AirQualityDashboard.css';
 
 const AirQualityDashboard = () => {
   const [data, setData] = useState([]);
@@ -34,12 +35,13 @@ const AirQualityDashboard = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading data...</div>;
+    return <div className="loading">Loading air quality data...</div>;
   }
 
   return (
-    <div>
-      <h2>Air Quality Dashboard</h2>
+    <div className="dashboard-container">
+      <h2 className="dashboard-title">U.S. Air Quality Dashboard (2016-2022)</h2>
+      <p>Explore air pollution trends across the United States. This dashboard provides insights into various pollutant levels.</p>
       <p>Data points loaded: {data.length}</p>
     </div>
   );
