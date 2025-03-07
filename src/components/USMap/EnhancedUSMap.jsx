@@ -121,16 +121,13 @@ const EnhancedUSMap = () => {
             
             setAirQualityData(processedData);
             setIsAqDataLoaded(true);
-            setIsLoading(false);
           },
           error: (error) => {
             console.error('Error parsing CSV:', error);
-            setIsLoading(false);
           }
         });
       } catch (error) {
         console.error('Error fetching air quality data:', error);
-        setIsLoading(false);
       }
     };
     
@@ -141,6 +138,13 @@ const EnhancedUSMap = () => {
   useEffect(() => {
     const googleMapScript = document.createElement('script');
     const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+    
+    // Check if API key is available and not the placeholder
+    if (!apiKey || apiKey === 'your_google_maps_api_key_here') {
+      console.error('Google Maps API key is missing or invalid. Please set REACT_APP_GOOGLE_MAPS_API_KEY in .env file.');
+      return;
+    }
+    
     googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
     googleMapScript.async = true;
     googleMapScript.defer = true;
@@ -281,6 +285,23 @@ const EnhancedUSMap = () => {
   const togglePlayPause = () => {
     setIsPaused(!isPaused);
   };
+
+  // Check if API key is available
+  const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
+  const isValidApiKey = apiKey && apiKey !== 'your_google_maps_api_key_here';
+
+  if (!isValidApiKey) {
+    return (
+      <div className="enhanced-us-map-container">
+        <div className="map-error-message" style={{ padding: '20px', textAlign: 'center' }}>
+          <h3>Google Maps API Key Missing</h3>
+          <p>Please set a valid Google Maps API key in the .env file:</p>
+          <pre style={{ backgroundColor: '#f5f5f5', padding: '10px' }}>REACT_APP_GOOGLE_MAPS_API_KEY=your_actual_api_key</pre>
+          <p>For local development, create a .env file in the project root.</p>
+        </div>
+      </div>
+    );
+  }
 
   if (dataLoading || isAqDataLoaded === false) {
     return <div className="loading-indicator">Loading map data...</div>;

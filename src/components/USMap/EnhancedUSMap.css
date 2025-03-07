@@ -132,3 +132,13 @@
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
+
+.map-error-message {
+  background-color: #fff3f3;
+  border: 1px solid #ffcaca;
+  border-radius: 5px;
+  margin: 20px 0;
+  padding: 20px;
+  text-align: center;
+  color: #d32f2f;
+}
