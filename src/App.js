@@ -1,5 +1,5 @@
 import React from 'react';
-/* import RespiratoryChart from './RespiratoryChart/RespiratoryChart'; */
+import RespiratoryChart from './RespiratoryChart/RespiratoryChart';
 import InfluenzaChart from './InfluenzaChart/InfluenzaChart';
 import AirQualityDashboard from './AirQuality/AirQualityDashboard';
 import EnhancedUSMap from './components/USMap/EnhancedUSMap';
@@ -13,8 +13,11 @@ function App() {
           Health and Environmental Data Visualization
         </h1>
         <EnhancedUSMap />
-        <InfluenzaChart />
-        <AirQualityDashboard />
+        <div style={{ display: 'flex', flexDirection: 'column', gap: '40px', marginTop: '40px' }}>
+          <RespiratoryChart />
+          <InfluenzaChart />
+          <AirQualityDashboard />
+        </div>
       </div>
     </DataProvider>
   );
