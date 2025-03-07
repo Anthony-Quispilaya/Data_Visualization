@@ -1,9 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import Papa from 'papaparse';
+import { useHealthData } from '../DataContext';
 import './InfluenzaChart.css';
 
 const InfluenzaChart = () => {
+  const { influenzaData, isLoading } = useHealthData();
   const containerRef = useRef(null);
   const svgRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -32,54 +33,41 @@ const InfluenzaChart = () => {
   }, []);
 
   useEffect(() => {
-    // Only proceed if we have valid dimensions
-    if (dimensions.width <= 0 || dimensions.height <= 0) return;
+    // Only proceed if we have valid dimensions and data
+    if (dimensions.width <= 0 || dimensions.height <= 0 || isLoading || !influenzaData.length) return;
 
-    const fetchData = async () => {
-      try {
-        const response = await fetch('/InfluenzaChart.csv');
-        const csvText = await response.text();
+    const processData = () => {
+      const yearlyData = influenzaData.reduce((acc, row) => {
+        const year = row.ISO_YEAR;
+        if (!acc[year]) {
+          acc[year] = {
+            year,
+            INF_A: 0,
+            INF_B: 0,
+            INF_ALL: 0,
+            count: 0
+          };
+        }
         
-        const parsedData = Papa.parse(csvText, {
-          header: true,
-          dynamicTyping: true,
-          skipEmptyLines: true
-        });
+        if (row.INF_A != null && row.INF_B != null && row.INF_ALL != null) {
+          acc[year].INF_A += row.INF_A;
+          acc[year].INF_B += row.INF_B;
+          acc[year].INF_ALL += row.INF_ALL;
+          acc[year].count++;
+        }
+        return acc;
+      }, {});
 
-        const yearlyData = parsedData.data.reduce((acc, row) => {
-          const year = row.ISO_YEAR;
-          if (!acc[year]) {
-            acc[year] = {
-              year,
-              INF_A: 0,
-              INF_B: 0,
-              INF_ALL: 0,
-              count: 0
-            };
-          }
-          
-          if (row.INF_A != null && row.INF_B != null && row.INF_ALL != null) {
-            acc[year].INF_A += row.INF_A;
-            acc[year].INF_B += row.INF_B;
-            acc[year].INF_ALL += row.INF_ALL;
-            acc[year].count++;
-          }
-          return acc;
-        }, {});
+      const data = Object.values(yearlyData)
+        .map(year => ({
+          year: year.year,
+          'Influenza A': Number((year.INF_A / year.count).toFixed(2)),
+          'Influenza B': Number((year.INF_B / year.count).toFixed(2)),
+          'Total Influenza': Number((year.INF_ALL / year.count).toFixed(2))
+        }))
+        .sort((a, b) => a.year - b.year);
 
-        const data = Object.values(yearlyData)
-          .map(year => ({
-            year: year.year,
-            'Influenza A': Number((year.INF_A / year.count).toFixed(2)),
-            'Influenza B': Number((year.INF_B / year.count).toFixed(2)),
-            'Total Influenza': Number((year.INF_ALL / year.count).toFixed(2))
-          }))
-          .sort((a, b) => a.year - b.year);
-
-        createChart(data);
-      } catch (error) {
-        console.error('Error fetching or parsing data:', error);
-      }
+      createChart(data);
     };
 
     const createChart = (data) => {
@@ -283,13 +271,21 @@ const InfluenzaChart = () => {
         .text(d => d.name);
     };
 
-    fetchData();
+    processData();
 
     // Cleanup function
     return () => {
       d3.select('body').selectAll('.tooltip').remove();
     };
-  }, [dimensions]); // Re-render when dimensions change
+  }, [dimensions, influenzaData, isLoading]); // Re-render when dimensions or data change
+
+  if (isLoading) {
+    return (
+      <div className="influenza-chart-container">
+        <div className="loading">Loading influenza data...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="influenza-chart-container" ref={containerRef}>
