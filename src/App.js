@@ -59,27 +59,12 @@ function App() {
         <div className="dashboard-content">
           {(activeTab === 'all' || activeTab === 'air') && (
             <div className="dashboard-section">
-              <div className="section-intro">
-                <h2>Air Quality Dashboard</h2>
-                <p>
-                  This dashboard displays air quality metrics across various U.S. states from 2016 to 2022.
-                  It shows trends in pollutants like PM2.5, PM10, Ozone, and others that can impact public health.
-                </p>
-              </div>
               <AirQualityDashboard />
             </div>
           )}
           
           {(activeTab === 'all' || activeTab === 'influenza') && (
             <div className="dashboard-section">
-              <div className="section-intro">
-                <h2>Influenza Trends Analysis</h2>
-                <p>
-                  Track influenza patterns and seasonal fluctuations throughout the United States.
-                  This visualization helps identify patterns in flu outbreaks and their correlation with 
-                  other health and environmental factors.
-                </p>
-              </div>
               <InfluenzaChart />
             </div>
           )}

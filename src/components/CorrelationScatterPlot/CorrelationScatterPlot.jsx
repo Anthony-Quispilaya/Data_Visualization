@@ -1,19 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Papa from 'papaparse';
 import * as d3 from 'd3';
+import Papa from 'papaparse';
 import './CorrelationScatterPlot.css';
 
 const CorrelationScatterPlot = () => {
   const [selectedYear, setSelectedYear] = useState(2022); // Default to most recent year
   const [selectedPollutant, setSelectedPollutant] = useState('PM2.5');
-  const [availableYears] = useState([2016, 2017, 2018, 2019, 2020, 2021, 2022]);
-  const [availablePollutants, setAvailablePollutants] = useState(['PM2.5']);
-  const [airQualityData, setAirQualityData] = useState([]);
-  const [respiratoryData, setRespiratoryData] = useState([]);
   const [correlationData, setCorrelationData] = useState([]);
   const [correlationCoefficient, setCorrelationCoefficient] = useState(null);
+  const [availableYears] = useState([2016, 2017, 2018, 2019, 2020, 2021, 2022]);
+  const [airQualityData, setAirQualityData] = useState([]);
+  const [respiratoryData, setRespiratoryData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const svgRef = useRef(null);
+  
+  // Available pollutants - only include those that are actually in the data
+  const [availablePollutants, setAvailablePollutants] = useState(['PM2.5']);
 
   // Load the data files
   useEffect(() => {
@@ -199,41 +201,10 @@ const CorrelationScatterPlot = () => {
     const denominator = Math.sqrt(xDenominator * yDenominator);
     return denominator === 0 ? 0 : numerator / denominator;
   };
-
-  // Helper to describe correlation strength
-  const getCorrelationDescription = (r) => {
-    const absR = Math.abs(r);
-    if (absR < 0.2) return "very weak";
-    if (absR < 0.4) return "weak";
-    if (absR < 0.6) return "moderate";
-    if (absR < 0.8) return "strong";
-    return "very strong";
-  };
-  
-  // Get correlation type (positive or negative)
-  const getCorrelationType = (r) => {
-    if (r === 0) return "no";
-    return r > 0 ? "positive" : "negative";
-  };
-
-  const handleYearChange = (e) => {
-    setSelectedYear(Number(e.target.value));
-  };
-  
-  const handlePollutantChange = (e) => {
-    setSelectedPollutant(e.target.value);
-  };
-
-  // Get the appropriate units for the selected pollutant
-  const getPollutantUnits = (pollutant) => {
-    if (pollutant === 'PM2.5' || pollutant === 'PM10') return 'μg/m³';
-    if (pollutant === 'O3' || pollutant === 'CO') return 'ppm';
-    return 'ppb';
-  };
   
   // Draw scatter plot using D3
   useEffect(() => {
-    if (correlationData.length <= 1 || !svgRef.current) return;
+    if (correlationData.length === 0 || !svgRef.current) return;
     
     // Clear previous content
     d3.select(svgRef.current).selectAll("*").remove();
@@ -405,11 +376,40 @@ const CorrelationScatterPlot = () => {
       tooltip.remove();
     };
   }, [correlationData, selectedPollutant, selectedYear]);
+  
+  const handleYearChange = (e) => {
+    setSelectedYear(Number(e.target.value));
+  };
+  
+  const handlePollutantChange = (e) => {
+    setSelectedPollutant(e.target.value);
+  };
+  
+  // Helper to describe correlation strength
+  const getCorrelationDescription = (r) => {
+    const absR = Math.abs(r);
+    if (absR < 0.2) return "very weak";
+    if (absR < 0.4) return "weak";
+    if (absR < 0.6) return "moderate";
+    if (absR < 0.8) return "strong";
+    return "very strong";
+  };
+  
+  // Get correlation type (positive or negative)
+  const getCorrelationType = (r) => {
+    if (r === 0) return "no";
+    return r > 0 ? "positive" : "negative";
+  };
+
+  // Get the appropriate units for the selected pollutant
+  const getPollutantUnits = (pollutant) => {
+    if (pollutant === 'PM2.5' || pollutant === 'PM10') return 'μg/m³';
+    if (pollutant === 'O3' || pollutant === 'CO') return 'ppm';
+    return 'ppb';
+  };
 
   return (
-    <div className="correlation-scatter-plot-container">
-      <h2>Correlation Analysis: Air Quality vs. Respiratory Health</h2>
-      
+    <>
       <div className="correlation-controls">
         <div className="control-group">
           <label htmlFor="pollutant-select">Pollutant:</label>
@@ -507,7 +507,7 @@ const CorrelationScatterPlot = () => {
           </div>
         </>
       )}
-    </div>
+    </>
   );
 };
 

@@ -1,13 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import Papa from 'papaparse';
 import { 
   LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, 
   Tooltip, Legend, ResponsiveContainer
 } from 'recharts';
-import { useHealthData } from '../DataContext';
 import './AirQualityDashboard.css';
 
 const AirQualityDashboard = () => {
-  const { airQualityData, isLoading } = useHealthData();
+  const [data, setData] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [selectedPollutant, setSelectedPollutant] = useState('PM2.5');
   const [selectedView, setSelectedView] = useState('trends');
   
@@ -29,16 +30,45 @@ const AirQualityDashboard = () => {
     'NO2': 'ppb'
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Adjust the path to your CSV file in the public folder
+        const response = await fetch('/data3.csv');
+        const fileContent = await response.text();
+        
+        Papa.parse(fileContent, {
+          header: true,
+          dynamicTyping: true,
+          skipEmptyLines: true,
+          complete: (results) => {
+            setData(results.data);
+            setLoading(false);
+          },
+          error: (error) => {
+            console.error('Error parsing CSV:', error);
+            setLoading(false);
+          }
+        });
+      } catch (error) {
+        console.error('Error reading file:', error);
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, []);
+
   // Process data for national trends over time
   const getNationalTrends = () => {
     const yearColumns = ['2016', '2017', '2018', '2019', '2020', '2021', '2022'];
-    const pollutants = [...new Set(airQualityData.map(row => row.Pollutant))];
+    const pollutants = [...new Set(data.map(row => row.Pollutant))];
     
     const nationalTrends = yearColumns.map(year => {
       const yearData = { year };
       
       pollutants.forEach(pollutant => {
-        const pollutantData = airQualityData.filter(row => row.Pollutant === pollutant);
+        const pollutantData = data.filter(row => row.Pollutant === pollutant);
         const validData = pollutantData.filter(row => row[year] !== null);
         
         if (validData.length > 0) {
@@ -56,26 +86,33 @@ const AirQualityDashboard = () => {
   // Process data for pollutant comparison by state
   const getStateComparison = () => {
     if (selectedPollutant) {
-      const pollutantData = airQualityData.filter(row => row.Pollutant === selectedPollutant && row['2022'] !== null);
+      const pollutantData = data.filter(row => row.Pollutant === selectedPollutant && row['2022'] !== null);
       return pollutantData.map(row => ({
         state: row.State,
-        value: row['2022']
+        value: row['2022'],
+        percentChange: row.Percent_Change
       })).sort((a, b) => b.value - a.value);
     }
     return [];
   };
 
-  if (isLoading) {
-    return <div className="loading">Loading air quality data...</div>;
+
+  if (loading) {
+    return <div className="loading">Loading data...</div>;
   }
 
   const nationalTrendsData = getNationalTrends();
   const stateComparisonData = getStateComparison().slice(0, 10); // Top 10 states
 
   return (
-    <div className="dashboard-container">
-      <h2 className="dashboard-title">U.S. Air Quality Dashboard (2016-2022)</h2>
-      <p>Explore air pollution trends across the United States. This dashboard provides insights into various pollutant levels.</p>
+    <>
+      <div className="section-intro">
+        <h2>U.S. Air Quality Dashboard (2016-2022)</h2>
+        <p>
+          Explore air pollution trends across the United States. This dashboard provides insights into various pollutant levels, 
+          including PM2.5, Ozone, and other key indicators of air quality over a seven-year period.
+        </p>
+      </div>
       
       <div className="controls-container">
         <div className="control-group">
@@ -107,7 +144,7 @@ const AirQualityDashboard = () => {
       
       {selectedView === 'trends' && (
         <div className="chart-container">
-          <h3>National Air Quality Trends (2016-2022)</h3>
+          <h2>National Air Quality Trends (2016-2022)</h2>
           <div className="chart-wrapper">
             <ResponsiveContainer width="100%" height={400}>
               <LineChart
@@ -140,9 +177,10 @@ const AirQualityDashboard = () => {
         </div>
       )}
       
+      {/* ReCharts State Comparison */}
       {selectedView === 'states' && (
         <div className="chart-container">
-          <h3>Top 10 States by {selectedPollutant} Levels (2022)</h3>
+          <h2>Top 10 States by {selectedPollutant} Levels (2022)</h2>
           <div className="chart-wrapper">
             <ResponsiveContainer width="100%" height={400}>
               <BarChart
@@ -167,7 +205,7 @@ const AirQualityDashboard = () => {
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 

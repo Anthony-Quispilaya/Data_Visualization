@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
+import Papa from 'papaparse';
 import _ from 'lodash';
-import { useHealthData } from '../DataContext';
 import './RespiratoryChart.css';
 
 const color = [
@@ -18,7 +18,6 @@ const color = [
 ];
 
 const RespiratoryChart = () => {
-  const { respiratoryData, isLoading } = useHealthData();
   const svgRef = useRef(null);
   const legendRef = useRef(null);
   const [visibleStates, setVisibleStates] = useState({});
@@ -35,8 +34,8 @@ const RespiratoryChart = () => {
     d3.select(svgRef.current).selectAll("*").remove();
     d3.select(legendRef.current).selectAll("*").remove();
 
-    const margin = { top: 20, right: 30, bottom: 60, left: 50 };
-    const width = 1000 - margin.left - margin.right;
+    const margin = { top: 20, right: 30, bottom: 60, left: 60 };
+    const width = 860 - margin.left - margin.right;
     const height = 450 - margin.top - margin.bottom;
 
     const tooltip = d3.select('body')
@@ -46,6 +45,7 @@ const RespiratoryChart = () => {
     const svg = d3.select(svgRef.current)
       .attr('width', width + margin.left + margin.right)
       .attr('height', height + margin.top + margin.bottom)
+      .style('font-family', "'Poppins', sans-serif")
       .append('g')
       .attr('transform', `translate(${margin.left},${margin.top})`);
 
@@ -103,19 +103,24 @@ const RespiratoryChart = () => {
         .datum(stateData)
         .attr('fill', 'none')
         .attr('stroke', colorScale(state))
-        .attr('stroke-width', 1.5)
+        .attr('stroke-width', 2.5)
         .attr('d', line)
+        .attr('class', 'line')
         .style('opacity', visibleStates[state] ? 1 : 0)
+        .attr('stroke-linejoin', 'round')
+        .attr('stroke-linecap', 'round')
         .on('mouseover', function() {
           if (visibleStates[state]) {
             d3.select(this)
-              .attr('stroke-width', 3);
+              .attr('stroke-width', 4)
+              .style('filter', 'drop-shadow(0px 0px 2px rgba(0,0,0,0.3))');
             tooltip.style('opacity', 1);
           }
         })
         .on('mouseout', function() {
           d3.select(this)
-            .attr('stroke-width', 1.5);
+            .attr('stroke-width', 2.5)
+            .style('filter', 'none');
           tooltip.style('opacity', 0);
         })
         .on('mousemove', function(event) {
@@ -138,7 +143,7 @@ const RespiratoryChart = () => {
     });
 
     const legend = d3.select(legendRef.current)
-      .attr('width', 200)
+      .attr('width', 180)
       .attr('height', height + margin.top + margin.bottom);
 
     const legendItems = legend.selectAll('.legend-item')
@@ -175,7 +180,7 @@ const RespiratoryChart = () => {
       .attr('y', 12)
       .text(d => d)
       .style('font-size', '14px')
-      .style('font-family', 'Arial, sans-serif')
+      .style('font-family', "'Poppins', sans-serif")
       .style('opacity', d => visibleStates[d] ? 1 : 0.3);
 
     legendRef.current.addEventListener('checkboxChange', (event) => {
@@ -188,11 +193,17 @@ const RespiratoryChart = () => {
   };
 
   useEffect(() => {
-    if (isLoading || !respiratoryData.length) return;
-
-    const processData = () => {
+    const loadData = async () => {
       try {
-        const stateAverages = _.chain(respiratoryData)
+        const response = await fetch('/data.csv');
+        const csvText = await response.text();
+        const parsed = Papa.parse(csvText, {
+          header: true,
+          dynamicTyping: true,
+          skipEmptyLines: true
+        });
+
+        const stateAverages = _.chain(parsed.data)
           .groupBy('STATE')
           .map((group, state) => ({
             state,
@@ -203,36 +214,30 @@ const RespiratoryChart = () => {
           .value();
 
         const top10States = stateAverages.map(s => s.state);
-        const filteredData = respiratoryData.filter(d => top10States.includes(d.STATE));
+        const filteredData = parsed.data.filter(d => top10States.includes(d.STATE));
         createVisualization(filteredData, top10States);
       } catch (error) {
-        console.error('Error processing data:', error);
+        console.error('Error loading data:', error);
       }
     };
 
-    processData();
+    loadData();
 
     return () => {
       d3.selectAll('.tooltip').remove();
     };
-  }, [visibleStates, respiratoryData, isLoading]);
-
-  if (isLoading) {
-    return (
-      <div className="chart-container">
-        <div className="loading">Loading respiratory data...</div>
-      </div>
-    );
-  }
+  }, [visibleStates]);
 
   return (
-    <div className="chart-container" style={{ width: '100%', minWidth: '1200px', padding: '20px' }}>
-      <h2 className="chart-title" style={{ textAlign: 'center', marginBottom: '20px' }}>
+    <div className="respiratory-section">
+      <h2 className="chart-title">
         Top 10 States - Respiratory Illness Rates (2016-2022)
       </h2>
-      <div className="chart-content" style={{ display: 'flex', justifyContent: 'center' }}>
-        <svg ref={svgRef} className="main-chart"></svg>
-        <svg ref={legendRef} className="chart-legend"></svg>
+      <div className="respiratory-chart-container">
+        <div className="chart-content">
+          <svg ref={svgRef} className="main-chart"></svg>
+          <svg ref={legendRef} className="chart-legend"></svg>
+        </div>
       </div>
     </div>
   );
