@@ -241,20 +241,117 @@ const EnhancedUSMap = () => {
     return stateCode;
   };
 
+  const changeVisualizationMode = (mode) => {
+    setVisualizationMode(mode);
+  };
+  
+  const handleYearChange = (e) => {
+    setSelectedYear(Number(e.target.value));
+  };
+  
+  const handlePollutantChange = (e) => {
+    setSelectedPollutant(e.target.value);
+  };
+  
+  const togglePlayPause = () => {
+    setIsPaused(!isPaused);
+  };
+
   if (isLoading) {
     return <div className="loading-indicator">Loading map data...</div>;
   }
 
+  // Define available years for the slider and time controls
+  const availableYears = [2016, 2017, 2018, 2019, 2020, 2021, 2022];
+
   return (
     <div className="enhanced-us-map-container">
       <h2>U.S. Map Visualization</h2>
+      
+      <div className="map-controls">
+        <button 
+          onClick={() => changeVisualizationMode('respiratory')}
+          className={`viz-toggle-btn ${visualizationMode === 'respiratory' ? 'active' : ''}`}
+        >
+          Respiratory Index
+        </button>
+        <button 
+          onClick={() => changeVisualizationMode('airQuality')}
+          className={`viz-toggle-btn ${visualizationMode === 'airQuality' ? 'active' : ''}`}
+        >
+          Air Quality
+        </button>
+      </div>
+      
+      {visualizationMode === 'airQuality' && (
+        <div className="pollutant-controls">
+          <label htmlFor="pollutant-select">Select Pollutant:</label>
+          <select 
+            id="pollutant-select"
+            value={selectedPollutant} 
+            onChange={handlePollutantChange}
+            className="pollutant-select"
+          >
+            {pollutants.map(pollutant => (
+              <option key={pollutant} value={pollutant}>
+                {pollutant === 'PM2.5' ? 'PM2.5 (μg/m³)' :
+                 pollutant === 'PM10' ? 'PM10 (μg/m³)' :
+                 pollutant === 'O3' ? 'Ozone (O3) (ppm)' :
+                 pollutant === 'CO' ? 'Carbon Monoxide (CO) (ppm)' :
+                 pollutant === 'SO2' ? 'Sulfur Dioxide (SO2) (ppb)' :
+                 pollutant === 'NO2' ? 'Nitrogen Dioxide (NO2) (ppb)' :
+                 pollutant}
+              </option>
+            ))}
+          </select>
+        </div>
+      )}
+      
+      <div className="time-controls">
+        <div className="year-display">
+          <h3>Year: {selectedYear}</h3>
+          <button 
+            onClick={togglePlayPause}
+            className="time-control-btn"
+          >
+            {isPaused ? '▶ Play' : '⏸ Pause'}
+          </button>
+        </div>
+        <div className="year-slider-container">
+          <input 
+            type="range" 
+            min={availableYears[0]} 
+            max={availableYears[availableYears.length - 1]} 
+            value={selectedYear} 
+            onChange={handleYearChange}
+            step="1"
+            className="year-slider"
+          />
+          <div className="year-markers">
+            {availableYears.map(year => (
+              <span key={year} className="year-marker" style={{
+                left: `${((year - availableYears[0]) / (availableYears[availableYears.length - 1] - availableYears[0])) * 100}%`
+              }}>
+                {year}
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+      
       <div 
         ref={mapRef} 
         className="google-map" 
       />
+      
       {selectedState && (
         <div className="state-info">
           <h3>Selected State: {selectedState}</h3>
+          <p>Visualization Mode: {visualizationMode}</p>
+          {visualizationMode === 'airQuality' && (
+            <p>Selected Pollutant: {selectedPollutant}</p>
+          )}
+          <p>Year: {selectedYear}</p>
         </div>
       )}
     </div>
