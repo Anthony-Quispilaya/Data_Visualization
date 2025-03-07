@@ -28,6 +28,32 @@
     height: auto;
   }
   
+  /* Enhanced tooltip styling */
+  .tooltip {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    pointer-events: none;
+    font-size: 14px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    line-height: 1.5;
+    transition: all 0.2s ease;
+    z-index: 1000;
+  }
+  
+  /* Axis styling */
+  .x-axis-label, .y-axis-label {
+    font-family: sans-serif;
+    font-size: 14px;
+  }
+  
+  /* Vertical line styling */
+  .vertical-line {
+    pointer-events: none;
+    transition: all 0.2s ease;
+  }
   
   /* Responsive styling */
   @media (max-width: 850px) {

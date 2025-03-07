@@ -145,6 +145,26 @@ const InfluenzaChart = () => {
         .style('font-weight', 'bold')
         .text('Positivity Rate');
 
+      // Add COVID-19 reference line
+      svg.append('line')
+        .attr('x1', x(2020))
+        .attr('x2', x(2020))
+        .attr('y1', 0)
+        .attr('y2', height)
+        .attr('stroke', 'red')
+        .attr('stroke-width', 2)
+        .attr('stroke-dasharray', '5,5');
+
+      // Add COVID-19 label
+      svg.append('text')
+        .attr('x', x(2020))
+        .attr('y', 0)
+        .attr('dy', '-10')
+        .attr('text-anchor', 'middle')
+        .style('fill', 'red')
+        .style('font-size', '16px')
+        .text('COVID-19 Pandemic');
+
       // Define line colors and names
       const lines = [
         { name: 'Influenza A', color: '#8884d8' },
