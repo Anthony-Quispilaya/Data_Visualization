@@ -12,6 +12,7 @@ const EnhancedUSMap = () => {
   const [currentData, setCurrentData] = useState(null);
   const [airQualityData, setAirQualityData] = useState([]);
   const [isPaused, setIsPaused] = useState(true);
+  const [animationInterval, setAnimationInterval] = useState(null);
   const [scriptLoaded, setScriptLoaded] = useState(false);
   const [isAqDataLoaded, setIsAqDataLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -19,6 +20,9 @@ const EnhancedUSMap = () => {
   
   // Available pollutants
   const pollutants = ['PM2.5', 'O3', 'CO', 'PM10', 'SO2', 'NO2'];
+  
+  // Define available years for the slider and time controls
+  const availableYears = [2016, 2017, 2018, 2019, 2020, 2021, 2022];
   
   // Pollutant color scales - different color scales for different pollutants
   const pollutantColorScales = {
@@ -145,6 +149,38 @@ const EnhancedUSMap = () => {
       updateMapStyling();
     }
   }, [visualizationMode, selectedYear, selectedPollutant, map, geoJsonData, isAqDataLoaded]);
+  
+  // Handle animation play/pause
+  useEffect(() => {
+    if (!isPaused) {
+      // Clear any existing interval
+      if (animationInterval) {
+        clearInterval(animationInterval);
+      }
+      
+      // Set new interval for animation
+      const interval = setInterval(() => {
+        setSelectedYear(prevYear => {
+          const currIndex = availableYears.indexOf(prevYear);
+          const nextIndex = (currIndex + 1) % availableYears.length;
+          return availableYears[nextIndex];
+        });
+      }, 1000); // Change year every 1 second
+      
+      setAnimationInterval(interval);
+    } else if (animationInterval) {
+      // Clear interval if animation is paused
+      clearInterval(animationInterval);
+      setAnimationInterval(null);
+    }
+    
+    // Clean up on unmount
+    return () => {
+      if (animationInterval) {
+        clearInterval(animationInterval);
+      }
+    };
+  }, [isPaused]);
 
   // Initialize the Google Map
   const initMap = async () => {
@@ -405,9 +441,6 @@ const EnhancedUSMap = () => {
   if (isLoading) {
     return <div className="loading-indicator">Loading map data...</div>;
   }
-
-  // Define available years for the slider and time controls
-  const availableYears = [2016, 2017, 2018, 2019, 2020, 2021, 2022];
 
   return (
     <div className="enhanced-us-map-container">
