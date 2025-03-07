@@ -1,0 +1,26 @@
+.correlation-scatter-plot-container {
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  margin: 20px 0;
+  max-width: 100%;
+  font-family: 'Roboto', sans-serif;
+}
+
+.correlation-scatter-plot-container h2 {
+  color: #333;
+  margin-top: 0;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.chart-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  border: 1px dashed #ddd;
+  border-radius: 4px;
+  margin: 20px 0;
+}
