@@ -1,0 +1,67 @@
+.influenza-chart-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 1rem;
+    width: 100%;
+    box-sizing: border-box;
+  }
+  
+  .influenza-chart-wrapper {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .chart-title {
+    text-align: center;
+    margin-bottom: 20px;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  /* Make the SVG responsive */
+  .influenza-chart-wrapper svg {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+  
+  /* Enhanced tooltip styling */
+  .tooltip {
+    position: absolute;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 12px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    pointer-events: none;
+    font-size: 14px;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    line-height: 1.5;
+    transition: all 0.2s ease;
+    z-index: 1000;
+  }
+  
+  /* Axis styling */
+  .x-axis-label, .y-axis-label {
+    font-family: sans-serif;
+    font-size: 14px;
+  }
+  
+  /* Vertical line styling */
+  .vertical-line {
+    pointer-events: none;
+    transition: all 0.2s ease;
+  }
+  
+  /* Responsive styling */
+  @media (max-width: 850px) {
+    .influenza-chart-wrapper {
+      width: 95%;
+    }
+    
+    .chart-title {
+      font-size: 20px;
+    }
+  }
