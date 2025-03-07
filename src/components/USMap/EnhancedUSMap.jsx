@@ -132,6 +132,115 @@ const EnhancedUSMap = () => {
     };
   }, []);
 
+  // Initialize the map once script is loaded and data is ready
+  useEffect(() => {
+    if (scriptLoaded && mapRef.current && !isLoading) {
+      initMap();
+    }
+  }, [scriptLoaded, isLoading]);
+
+  // Initialize the Google Map
+  const initMap = async () => {
+    // Create a new map centered on the US
+    const newMap = new window.google.maps.Map(mapRef.current, {
+      center: { lat: 39.8283, lng: -98.5795 }, // Center of the US
+      zoom: 4,
+      mapTypeId: 'roadmap',
+      mapTypeControl: false,
+      streetViewControl: false,
+      styles: [
+        {
+          featureType: 'administrative.country',
+          elementType: 'geometry.stroke',
+          stylers: [{ color: '#000000' }, { weight: 1 }]
+        },
+        {
+          featureType: 'all',
+          elementType: 'labels.text',
+          stylers: [{ fontFamily: 'Roboto' }]
+        }
+      ]
+    });
+    
+    setMap(newMap);
+    
+    // Load the GeoJSON for US states
+    try {
+      const response = await fetch('https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json');
+      const data = await response.json();
+      
+      // Process the data to associate state codes with features
+      data.features.forEach(feature => {
+        // Get state name from feature properties
+        const stateName = feature.properties.name;
+        // Find the state code (2-letter abbreviation)
+        const stateCode = getStateCodeFromName(stateName);
+        // Add the state code to the feature properties
+        if (stateCode) {
+          feature.properties.stateCode = stateCode;
+        }
+      });
+      
+      setGeoJsonData(data);
+      
+      // Add state boundaries to the map
+      newMap.data.addGeoJson(data);
+      
+      // Add click listener for states
+      newMap.data.addListener('click', (event) => {
+        const stateName = event.feature.getProperty('name');
+        const stateCode = getStateCodeFromName(stateName);
+        
+        if (stateCode) {
+          // Highlight the selected state
+          newMap.data.forEach(feature => {
+            if (feature.getProperty('name') === stateName) {
+              newMap.data.overrideStyle(feature, {
+                fillColor: '#1976D2',
+                fillOpacity: 0.7,
+                strokeColor: '#1976D2',
+                strokeWeight: 2,
+              });
+            } else {
+              // Reset style for other states
+              newMap.data.revertStyle(feature);
+            }
+          });
+          
+          setSelectedState(stateCode);
+        }
+      });
+    } catch (error) {
+      console.error('Error loading GeoJSON:', error);
+    }
+  };
+
+  // Helper function to get state code from state name
+  const getStateCodeFromName = (stateName) => {
+    const stateNameToCode = {
+      'Alabama': 'AL', 'Alaska': 'AK', 'Arizona': 'AZ', 'Arkansas': 'AR', 'California': 'CA',
+      'Colorado': 'CO', 'Connecticut': 'CT', 'Delaware': 'DE', 'Florida': 'FL', 'Georgia': 'GA',
+      'Hawaii': 'HI', 'Idaho': 'ID', 'Illinois': 'IL', 'Indiana': 'IN', 'Iowa': 'IA',
+      'Kansas': 'KS', 'Kentucky': 'KY', 'Louisiana': 'LA', 'Maine': 'ME', 'Maryland': 'MD',
+      'Massachusetts': 'MA', 'Michigan': 'MI', 'Minnesota': 'MN', 'Mississippi': 'MS', 'Missouri': 'MO',
+      'Montana': 'MT', 'Nebraska': 'NE', 'Nevada': 'NV', 'New Hampshire': 'NH', 'New Jersey': 'NJ',
+      'New Mexico': 'NM', 'New York': 'NY', 'North Carolina': 'NC', 'North Dakota': 'ND', 'Ohio': 'OH',
+      'Oklahoma': 'OK', 'Oregon': 'OR', 'Pennsylvania': 'PA', 'Rhode Island': 'RI', 'South Carolina': 'SC',
+      'South Dakota': 'SD', 'Tennessee': 'TN', 'Texas': 'TX', 'Utah': 'UT', 'Vermont': 'VT',
+      'Virginia': 'VA', 'Washington': 'WA', 'West Virginia': 'WV', 'Wisconsin': 'WI', 'Wyoming': 'WY',
+      'Puerto Rico': 'PR', 'District of Columbia': 'DC'
+    };
+    
+    const stateCode = stateNameToCode[stateName];
+    
+    // For debugging
+    if (!stateCode) {
+      console.log(`Could not find state code for: "${stateName}"`);
+    }
+    
+    return stateCode;
+  };
+
   if (isLoading) {
     return <div className="loading-indicator">Loading map data...</div>;
   }
@@ -139,9 +248,14 @@ const EnhancedUSMap = () => {
   return (
     <div className="enhanced-us-map-container">
       <h2>U.S. Map Visualization</h2>
-      <div ref={mapRef} style={{ width: '100%', height: '500px' }} />
-      {airQualityData.length > 0 && (
-        <p>Loaded {airQualityData.length} air quality data points</p>
+      <div 
+        ref={mapRef} 
+        className="google-map" 
+      />
+      {selectedState && (
+        <div className="state-info">
+          <h3>Selected State: {selectedState}</h3>
+        </div>
       )}
     </div>
   );
