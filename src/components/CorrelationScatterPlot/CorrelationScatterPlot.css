@@ -109,6 +109,20 @@
   animation: pulse 1.5s infinite;
 }
 
+.scatter-tooltip {
+  position: absolute;
+  background-color: rgba(255, 255, 255, 0.95);
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-family: 'Roboto', sans-serif;
+  pointer-events: none;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.15);
+  max-width: 220px;
+  z-index: 1000;
+}
+
 @keyframes pulse {
   0% { opacity: 0.6; }
   50% { opacity: 1; }

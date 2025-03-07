@@ -1,5 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import Papa from 'papaparse';
+import * as d3 from 'd3';
 import './CorrelationScatterPlot.css';
 
 const CorrelationScatterPlot = () => {
@@ -12,6 +13,7 @@ const CorrelationScatterPlot = () => {
   const [correlationData, setCorrelationData] = useState([]);
   const [correlationCoefficient, setCorrelationCoefficient] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
+  const svgRef = useRef(null);
 
   // Load the data files
   useEffect(() => {
@@ -228,6 +230,181 @@ const CorrelationScatterPlot = () => {
     if (pollutant === 'O3' || pollutant === 'CO') return 'ppm';
     return 'ppb';
   };
+  
+  // Draw scatter plot using D3
+  useEffect(() => {
+    if (correlationData.length <= 1 || !svgRef.current) return;
+    
+    // Clear previous content
+    d3.select(svgRef.current).selectAll("*").remove();
+    
+    // Set dimensions and margins
+    const margin = { top: 40, right: 40, bottom: 60, left: 60 };
+    const width = 600 - margin.left - margin.right;
+    const height = 400 - margin.top - margin.bottom;
+    
+    // Create SVG element
+    const svg = d3.select(svgRef.current)
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .style("font-family", "'Poppins', sans-serif")
+      .append("g")
+      .attr("transform", `translate(${margin.left},${margin.top})`);
+    
+    // Set scales
+    const xExtent = d3.extent(correlationData, d => d.airQualityValue);
+    const yExtent = d3.extent(correlationData, d => d.respiratoryIndex);
+    
+    // Add some padding to the extents
+    const xPadding = Math.max(0.1, (xExtent[1] - xExtent[0]) * 0.1);
+    const yPadding = Math.max(0.1, (yExtent[1] - yExtent[0]) * 0.1);
+    
+    const xScale = d3.scaleLinear()
+      .domain([xExtent[0] - xPadding, xExtent[1] + xPadding])
+      .range([0, width]);
+    
+    const yScale = d3.scaleLinear()
+      .domain([yExtent[0] - yPadding, yExtent[1] + yPadding])
+      .range([height, 0]);
+    
+    // Add X axis
+    svg.append("g")
+      .attr("transform", `translate(0,${height})`)
+      .call(d3.axisBottom(xScale))
+      .append("text")
+      .attr("y", 40)
+      .attr("x", width / 2)
+      .attr("fill", "#000")
+      .attr("text-anchor", "middle")
+      .text(`${selectedPollutant} Level ${selectedPollutant === 'PM2.5' || selectedPollutant === 'PM10' ? '(μg/m³)' : 
+                 selectedPollutant === 'O3' || selectedPollutant === 'CO' ? '(ppm)' : '(ppb)'}`);
+    
+    // Add Y axis
+    svg.append("g")
+      .call(d3.axisLeft(yScale))
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", -40)
+      .attr("x", -height / 2)
+      .attr("fill", "#000")
+      .attr("text-anchor", "middle")
+      .text("Respiratory Index (0-8)");
+    
+    // Calculate regression line data - we need at least 2 points for a line
+    if (correlationData.length >= 2) {
+      const x = correlationData.map(d => d.airQualityValue);
+      const y = correlationData.map(d => d.respiratoryIndex);
+      
+      const n = x.length;
+      const xMean = x.reduce((a, b) => a + b, 0) / n;
+      const yMean = y.reduce((a, b) => a + b, 0) / n;
+      
+      // Calculate slope and intercept for least squares regression line
+      let numerator = 0;
+      let denominator = 0;
+      
+      for (let i = 0; i < n; i++) {
+        numerator += (x[i] - xMean) * (y[i] - yMean);
+        denominator += (x[i] - xMean) * (x[i] - xMean);
+      }
+      
+      const slope = denominator !== 0 ? numerator / denominator : 0;
+      const intercept = yMean - slope * xMean;
+      
+      console.log(`Regression line for ${selectedPollutant} (${selectedYear}): y = ${slope.toFixed(4)}x + ${intercept.toFixed(4)}`);
+      
+      // Add regression line
+      const lineData = [
+        { x: xExtent[0] - xPadding, y: slope * (xExtent[0] - xPadding) + intercept },
+        { x: xExtent[1] + xPadding, y: slope * (xExtent[1] + xPadding) + intercept }
+      ];
+      
+      // Draw the regression line without filtering - adjust Y scale if needed
+      const yDomain = yScale.domain();
+      if (lineData[0].y < yDomain[0] || lineData[1].y < yDomain[0] ||
+          lineData[0].y > yDomain[1] || lineData[1].y > yDomain[1]) {
+        
+        // If line goes outside Y domain, adjust the Y domain to include it
+        const newYMin = Math.min(yDomain[0], lineData[0].y, lineData[1].y);
+        const newYMax = Math.max(yDomain[1], lineData[0].y, lineData[1].y);
+        
+        yScale.domain([newYMin, newYMax]);
+        
+        // Redraw Y axis with new domain
+        svg.select("g").call(d3.axisLeft(yScale));
+      }
+      
+      const line = d3.line()
+        .x(d => xScale(d.x))
+        .y(d => yScale(d.y));
+      
+      svg.append("path")
+        .datum(lineData)
+        .attr("fill", "none")
+        .attr("stroke", "#ff6b6b") 
+        .attr("stroke-width", 2)
+        .attr("d", line);
+    }
+    
+    // Add data points
+    const tooltip = d3.select("body")
+      .append("div")
+      .attr("class", "scatter-tooltip")
+      .style("opacity", 0);
+    
+    svg.selectAll(".dot")
+      .data(correlationData)
+      .enter()
+      .append("circle")
+      .attr("class", "dot")
+      .attr("cx", d => xScale(d.airQualityValue))
+      .attr("cy", d => yScale(d.respiratoryIndex))
+      .attr("r", 6)
+      .style("fill", "#4285F4")
+      .style("opacity", 0.8)
+      .style("stroke", "#fff")
+      .style("stroke-width", 1)
+      .on("mouseover", function(event, d) {
+        d3.select(this)
+          .style("fill", "#DB4437")
+          .style("r", 8);
+        
+        tooltip.transition()
+          .duration(200)
+          .style("opacity", .9);
+        
+        tooltip.html(`
+          <strong>${d.stateName} (${d.state})</strong><br/>
+          ${selectedPollutant}: ${d.airQualityValue.toFixed(2)}<br/>
+          Respiratory Index: ${d.respiratoryIndex.toFixed(2)}
+        `)
+          .style("left", (event.pageX + 10) + "px")
+          .style("top", (event.pageY - 28) + "px");
+      })
+      .on("mouseout", function() {
+        d3.select(this)
+          .style("fill", "#4285F4")
+          .style("r", 6);
+        
+        tooltip.transition()
+          .duration(500)
+          .style("opacity", 0);
+      });
+    
+    // Add chart title
+    svg.append("text")
+      .attr("x", width / 2)
+      .attr("y", -10)
+      .attr("text-anchor", "middle")
+      .style("font-size", "16px")
+      .style("font-weight", "bold")
+      .text(`Correlation Between ${selectedPollutant} and Respiratory Health (${selectedYear})`);
+    
+    // Clean up
+    return () => {
+      tooltip.remove();
+    };
+  }, [correlationData, selectedPollutant, selectedYear]);
 
   return (
     <div className="correlation-scatter-plot-container">
@@ -309,7 +486,7 @@ const CorrelationScatterPlot = () => {
           
           <div className="chart-container">
             {correlationData.length > 1 ? (
-              <p>Scatter plot visualization coming in the next step...</p>
+              <svg ref={svgRef}></svg>
             ) : (
               <div className="no-data-message">
                 <p>Insufficient data to display the scatter plot for {selectedPollutant} in {selectedYear}.</p>
