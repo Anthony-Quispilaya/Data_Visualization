@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useHealthData } from '../../DataContext';
-import Papa from 'papaparse';
 import './EnhancedUSMap.css';
 
 const EnhancedUSMap = () => {
@@ -57,7 +56,7 @@ const EnhancedUSMap = () => {
   };
   
   // Use the health data context
-  const { timeSeriesData, availableYears, isLoading, error } = useHealthData();
+  const { timeSeriesData, availableYears, isLoading } = useHealthData();
 
   // Fetch air quality data from CSV
   useEffect(() => {
@@ -177,12 +176,12 @@ const EnhancedUSMap = () => {
         clearInterval(animationInterval);
       }
     };
-  }, [isPaused, availableYears]);
+  }, [isPaused, availableYears, animationInterval]);
 
   // Load the Google Maps script
   useEffect(() => {
     const googleMapScript = document.createElement('script');
-    googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=AIzaSyCL0YmDqSzgM9biMH5FxJJp8V7BwmdM4Qw&libraries=places`;
+    googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}&libraries=places`;
     googleMapScript.async = true;
     googleMapScript.defer = true;
     window.document.body.appendChild(googleMapScript);
@@ -197,20 +196,6 @@ const EnhancedUSMap = () => {
       });
     };
   }, []);
-
-  // Initialize the map once script is loaded and data is ready
-  useEffect(() => {
-    if (scriptLoaded && mapRef.current && !isLoading && currentData) {
-      initMap();
-    }
-  }, [scriptLoaded, isLoading, currentData]);
-
-  // Update map styling when visualization mode, selected year, or pollutant changes
-  useEffect(() => {
-    if (map && geoJsonData && currentData) {
-      updateMapStyling();
-    }
-  }, [visualizationMode, selectedYear, selectedPollutant, map, geoJsonData, currentData, isAqDataLoaded]);
 
   const initMap = async () => {
     // Create a new map centered on the US
@@ -358,6 +343,20 @@ const EnhancedUSMap = () => {
     
     return stateCode;
   };
+
+  // Initialize the map once script is loaded and data is ready
+  useEffect(() => {
+    if (scriptLoaded && mapRef.current && !isLoading && currentData) {
+      initMap();
+    }
+  }, [scriptLoaded, isLoading, currentData]);
+
+  // Update map styling when visualization mode, selected year, or pollutant changes
+  useEffect(() => {
+    if (map && geoJsonData && currentData) {
+      updateMapStyling();
+    }
+  }, [visualizationMode, selectedYear, selectedPollutant, map, geoJsonData, currentData, isAqDataLoaded]);
 
   // Color scale function to visualize respiratory index on a 0-8 scale
   const getColorByHealthMetric = (value) => {
