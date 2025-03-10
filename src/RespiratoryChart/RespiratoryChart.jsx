@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import Papa from 'papaparse';
 import _ from 'lodash';
-import '/RespiratoryChart.css';
+import { useHealthData } from '../DataContext';
+import './RespiratoryChart.css';
 
 const color = [
   '#B8B1E5', // New Mexico
@@ -18,6 +18,7 @@ const color = [
 ];
 
 const RespiratoryChart = () => {
+  const { respiratoryData, isLoading } = useHealthData();
   const svgRef = useRef(null);
   const legendRef = useRef(null);
   const [visibleStates, setVisibleStates] = useState({});
@@ -187,17 +188,11 @@ const RespiratoryChart = () => {
   };
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const response = await fetch('/data.csv');
-        const csvText = await response.text();
-        const parsed = Papa.parse(csvText, {
-          header: true,
-          dynamicTyping: true,
-          skipEmptyLines: true
-        });
+    if (isLoading || !respiratoryData.length) return;
 
-        const stateAverages = _.chain(parsed.data)
+    const processData = () => {
+      try {
+        const stateAverages = _.chain(respiratoryData)
           .groupBy('STATE')
           .map((group, state) => ({
             state,
@@ -208,19 +203,27 @@ const RespiratoryChart = () => {
           .value();
 
         const top10States = stateAverages.map(s => s.state);
-        const filteredData = parsed.data.filter(d => top10States.includes(d.STATE));
+        const filteredData = respiratoryData.filter(d => top10States.includes(d.STATE));
         createVisualization(filteredData, top10States);
       } catch (error) {
-        console.error('Error loading data:', error);
+        console.error('Error processing data:', error);
       }
     };
 
-    loadData();
+    processData();
 
     return () => {
       d3.selectAll('.tooltip').remove();
     };
-  }, [visibleStates]);
+  }, [visibleStates, respiratoryData, isLoading]);
+
+  if (isLoading) {
+    return (
+      <div className="chart-container">
+        <div className="loading">Loading respiratory data...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="chart-container" style={{ width: '100%', minWidth: '1200px', padding: '20px' }}>
