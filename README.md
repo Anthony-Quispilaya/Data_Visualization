@@ -1,32 +1,78 @@
 # The Health Impact of Air Pollution in the U.S.
 
-### **Project Overview**  
-This project investigates how air pollution impacts respiratory health in U.S. cities, focusing on trends over time and geographic differences. Using data from the **EPA Air Quality System (AQS)** and **CDC Environmental Public Health Tracking Network**, this project aims to identify the most affected regions and explore how changes in air quality correlate with respiratory health outcomes.  
+## Project Overview
+This interactive dashboard visualizes the relationship between air pollution and respiratory health across the United States from 2016-2022. By analyzing data from the EPA Air Quality System and CDC Environmental Public Health Tracking Network, this project reveals geographical patterns and temporal trends in how air quality impacts public health.
 
----
+## Live Demo
+[View the live application](#) <!-- Replace with your deployed URL when available -->
 
-### **Essential Question**  
-**"Is there a correlation between diminished air quality and respiratory illness rates across U.S. urban areas?"**  
+## Essential Question
+**"Is there a correlation between diminished air quality and respiratory illness rates across U.S. urban areas?"**
 
----
+## Features
+- **Interactive US Map**: Color-coded visualization of respiratory health and air quality by state with time slider (2016-2022)
+- **Air Quality Dashboard**: Detailed monitoring of multiple pollutants with trend analysis
+- **Influenza Trends**: Visualization of influenza patterns correlated with environmental factors
+- **Respiratory Illness Tracking**: Time-series analysis of respiratory disease prevalence
+- **Correlation Analysis**: Statistical examination of relationships between air quality metrics and health outcomes
 
-### **Data Sources**  
-- **EPA Air Quality System (AQS)** – [Annual AQI and Pollutant Data (PM2.5, Ozone)](https://www.epa.gov/aqs) (CSV)  
-- **CDC Environmental Public Health Tracking Network** – [Respiratory Illness and Hospitalization Rates](https://ephtracking.cdc.gov/DataExplorer/) (JSON)  
+## Data Sources
+- **EPA Air Quality System (AQS)** – [Annual AQI and Pollutant Data (PM2.5, Ozone)](https://www.epa.gov/aqs)
+- **CDC Environmental Public Health Tracking Network** – [Respiratory Illness and Hospitalization Rates](https://ephtracking.cdc.gov/DataExplorer/)
 
----
+## Visualizations
+1. **Interactive US Map**:
+   - Geographic distribution of health impacts and pollution levels
+   - Time-based comparison with drill-down state data
 
-### **Potential Visualizations**  
-1. **Choropleth Map:**  
-   - To highlight U.S. cities with high air pollution and respiratory health impacts.  
-2. **Time-Series Graph:**  
-   - To track air pollution levels and respiratory illness trends from 2000 to 2025.  
-3. **Scatter Plot:**  
-   - To visualize the relationship between air quality (PM2.5 levels) and respiratory illness rates.  
+2. **Time-Series Graphs**:
+   - Tracking pollution levels and respiratory illness trends over time
+   - Seasonality analysis and long-term pattern recognition
 
----
+3. **Correlation Scatter Plots**:
+   - Statistical relationship between air quality metrics and illness rates
+   - Regression analysis with confidence intervals
 
-### **Objective**  
-The goal of this project is to provide an insightful analysis of air quality and its health impact in the U.S., using interactive visualizations to reveal patterns and trends that might otherwise go unnoticed.  
+## Technologies Used
+- React
+- D3.js
+- PapaParse (CSV parsing)
+- Recharts
+- Google Maps API
 
----
+## Getting Started
+
+### Prerequisites
+- Node.js (v18 or higher)
+- npm
+
+### Installation
+```bash
+# Clone the repository
+git clone <repository-url>
+
+# Navigate to project directory
+cd Data_Visualization
+
+# Install dependencies
+npm install
+
+# Start the development server
+npm start
+```
+The application will run at http://localhost:3000
+
+## Project Structure
+```
+src/
+├── AirQuality/          # Air quality visualization components
+├── InfluenzaChart/      # Influenza trend visualization
+├── RespiratoryChart/    # Respiratory illness visualization
+├── components/
+│   ├── CorrelationScatterPlot/  # Statistical correlation analysis
+│   └── USMap/           # Interactive US map visualization
+└── DataContext.js       # Central data management
+```
+
+## Findings & Insights
+The visualizations reveal significant correlations between air quality pollutant levels and respiratory illness rates in urban areas, with particularly strong relationships in industrial regions. Seasonal patterns show increased health impacts during summer months with elevated ozone levels.
