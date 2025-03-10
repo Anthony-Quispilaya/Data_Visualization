@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { useHealthData } from '../../DataContext';
-import Papa from 'papaparse';
 import './EnhancedUSMap.css';
 
 const EnhancedUSMap = () => {
@@ -57,7 +56,7 @@ const EnhancedUSMap = () => {
   };
   
   // Use the health data context
-  const { timeSeriesData, availableYears, isLoading, error } = useHealthData();
+  const { timeSeriesData, availableYears, isLoading } = useHealthData();
 
   // Fetch air quality data from CSV
   useEffect(() => {
@@ -88,7 +87,8 @@ const EnhancedUSMap = () => {
         }
         
         // Parse CSV with Papa Parse
-        const parsedData = Papa.parse(response, {
+        const Papa = await import('papaparse');
+        const parsedData = Papa.default.parse(response, {
           header: true,
           dynamicTyping: true,
           skipEmptyLines: true
@@ -176,20 +176,12 @@ const EnhancedUSMap = () => {
         clearInterval(animationInterval);
       }
     };
-  }, [isPaused, availableYears]);
+  }, [isPaused, availableYears, animationInterval]);
 
-  // Load the Google Maps script with the API key from environment variables
+  // Load the Google Maps script
   useEffect(() => {
     const googleMapScript = document.createElement('script');
-    const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-    
-    // Check if API key is available and not the placeholder
-    if (!apiKey || apiKey === 'your_google_maps_api_key_here') {
-      console.error('Google Maps API key is missing or invalid. Please set REACT_APP_GOOGLE_MAPS_API_KEY in .env file.');
-      return;
-    }
-    
-    googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=${apiKey}&libraries=places`;
+    googleMapScript.src = `https://maps.googleapis.com/maps/api/js?key=${process.env.REACT_APP_GOOGLE_MAPS_API_KEY}&libraries=places`;
     googleMapScript.async = true;
     googleMapScript.defer = true;
     window.document.body.appendChild(googleMapScript);
@@ -204,20 +196,6 @@ const EnhancedUSMap = () => {
       });
     };
   }, []);
-
-  // Initialize the map once script is loaded and data is ready
-  useEffect(() => {
-    if (scriptLoaded && mapRef.current && !isLoading && currentData) {
-      initMap();
-    }
-  }, [scriptLoaded, isLoading, currentData]);
-
-  // Update map styling when visualization mode, selected year, or pollutant changes
-  useEffect(() => {
-    if (map && geoJsonData && currentData) {
-      updateMapStyling();
-    }
-  }, [visualizationMode, selectedYear, selectedPollutant, map, geoJsonData, currentData, isAqDataLoaded]);
 
   const initMap = async () => {
     // Create a new map centered on the US
@@ -265,10 +243,8 @@ const EnhancedUSMap = () => {
       // Add state boundaries to the map
       newMap.data.addGeoJson(data);
       
-      // Style the states based on current data
-      if (timeSeriesData && timeSeriesData[selectedYear]) {
-        updateMapStyling(newMap, data);
-      }
+      // Style the states
+      updateMapStyling(newMap, data);
       
       // Add click listener for states
       newMap.data.addListener('click', (event) => {
@@ -368,6 +344,20 @@ const EnhancedUSMap = () => {
     return stateCode;
   };
 
+  // Initialize the map once script is loaded and data is ready
+  useEffect(() => {
+    if (scriptLoaded && mapRef.current && !isLoading && currentData) {
+      initMap();
+    }
+  }, [scriptLoaded, isLoading, currentData]);
+
+  // Update map styling when visualization mode, selected year, or pollutant changes
+  useEffect(() => {
+    if (map && geoJsonData && currentData) {
+      updateMapStyling();
+    }
+  }, [visualizationMode, selectedYear, selectedPollutant, map, geoJsonData, currentData, isAqDataLoaded]);
+
   // Color scale function to visualize respiratory index on a 0-8 scale
   const getColorByHealthMetric = (value) => {
     // For respiratory index on a 0-8 scale where:
@@ -435,6 +425,22 @@ const EnhancedUSMap = () => {
     }
   };
 
+  const changeVisualizationMode = (mode) => {
+    setVisualizationMode(mode);
+  };
+  
+  const handleYearChange = (e) => {
+    setSelectedYear(Number(e.target.value));
+  };
+  
+  const handlePollutantChange = (e) => {
+    setSelectedPollutant(e.target.value);
+  };
+  
+  const togglePlayPause = () => {
+    setIsPaused(!isPaused);
+  };
+  
   // Function to get pollutant value for the selected state and year
   const getPollutantValue = (stateCode, pollutant, year) => {
     if (!airQualityData || airQualityData.length === 0) {
@@ -704,62 +710,6 @@ const EnhancedUSMap = () => {
     return thresholds[pollutant] || thresholds['PM2.5'];
   };
 
-  const changeVisualizationMode = (mode) => {
-    setVisualizationMode(mode);
-    console.log(`Changed to ${mode} mode`);
-  };
-  
-  const handleYearChange = (e) => {
-    setSelectedYear(Number(e.target.value));
-  };
-  
-  const handlePollutantChange = (e) => {
-    setSelectedPollutant(e.target.value);
-  };
-  
-  const togglePlayPause = () => {
-    setIsPaused(!isPaused);
-  };
-
-  // Check if API key is available
-  const apiKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-  const isValidApiKey = apiKey && apiKey !== 'your_google_maps_api_key_here';
-
-  if (!isValidApiKey) {
-    return (
-      <div className="enhanced-us-map-container">
-        <div className="map-error-message" style={{ padding: '20px', textAlign: 'center' }}>
-          <h3>Google Maps API Key Missing</h3>
-          <p>Please set a valid Google Maps API key in the .env file:</p>
-          <pre style={{ backgroundColor: '#f5f5f5', padding: '10px' }}>REACT_APP_GOOGLE_MAPS_API_KEY=your_actual_api_key</pre>
-          <p>For local development, create a .env file in the project root.</p>
-        </div>
-      </div>
-    );
-  }
-
-  // Function to calculate trend from time series data
-  const calculateTrend = (timeSeriesData, metricName) => {
-    if (!timeSeriesData || Object.keys(timeSeriesData).length < 2) return 0;
-    
-    // Get the earliest and latest years with data
-    const years = Object.keys(timeSeriesData)
-      .map(Number)
-      .filter(year => timeSeriesData[year] && timeSeriesData[year][metricName] !== undefined)
-      .sort((a, b) => a - b);
-    
-    if (years.length < 2) return 0;
-    
-    const earliestYear = years[0];
-    const latestYear = years[years.length - 1];
-    
-    // Calculate the difference
-    const earliestValue = timeSeriesData[earliestYear][metricName];
-    const latestValue = timeSeriesData[latestYear][metricName];
-    
-    return latestValue - earliestValue;
-  };
-
   return (
     <div className="enhanced-us-map-container">
       {isLoading ? (
@@ -770,6 +720,7 @@ const EnhancedUSMap = () => {
             <button 
               onClick={() => {
                 changeVisualizationMode('respiratory');
+                console.log("Changed to respiratory mode");
               }}
               className={`viz-toggle-btn ${visualizationMode === 'respiratory' ? 'active' : ''}`}
             >
@@ -778,6 +729,7 @@ const EnhancedUSMap = () => {
             <button 
               onClick={() => {
                 changeVisualizationMode('airQuality');
+                console.log("Changed to air quality mode");
               }}
               className={`viz-toggle-btn ${visualizationMode === 'airQuality' ? 'active' : ''}`}
             >

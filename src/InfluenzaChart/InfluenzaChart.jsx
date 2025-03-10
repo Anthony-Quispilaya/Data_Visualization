@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useState } from 'react';
 import * as d3 from 'd3';
-import { useHealthData } from '../DataContext';
+import Papa from 'papaparse';
 import './InfluenzaChart.css';
 
 const InfluenzaChart = () => {
-  const { influenzaData, isLoading } = useHealthData();
   const containerRef = useRef(null);
   const svgRef = useRef(null);
   const [dimensions, setDimensions] = useState({ width: 0, height: 0 });
@@ -33,41 +32,54 @@ const InfluenzaChart = () => {
   }, []);
 
   useEffect(() => {
-    // Only proceed if we have valid dimensions and data
-    if (dimensions.width <= 0 || dimensions.height <= 0 || isLoading || !influenzaData.length) return;
+    // Only proceed if we have valid dimensions
+    if (dimensions.width <= 0 || dimensions.height <= 0) return;
 
-    const processData = () => {
-      const yearlyData = influenzaData.reduce((acc, row) => {
-        const year = row.ISO_YEAR;
-        if (!acc[year]) {
-          acc[year] = {
-            year,
-            INF_A: 0,
-            INF_B: 0,
-            INF_ALL: 0,
-            count: 0
-          };
-        }
+    const fetchData = async () => {
+      try {
+        const response = await fetch('/InfluenzaChart.csv');
+        const csvText = await response.text();
         
-        if (row.INF_A != null && row.INF_B != null && row.INF_ALL != null) {
-          acc[year].INF_A += row.INF_A;
-          acc[year].INF_B += row.INF_B;
-          acc[year].INF_ALL += row.INF_ALL;
-          acc[year].count++;
-        }
-        return acc;
-      }, {});
+        const parsedData = Papa.parse(csvText, {
+          header: true,
+          dynamicTyping: true,
+          skipEmptyLines: true
+        });
 
-      const data = Object.values(yearlyData)
-        .map(year => ({
-          year: year.year,
-          'Influenza A': Number((year.INF_A / year.count).toFixed(2)),
-          'Influenza B': Number((year.INF_B / year.count).toFixed(2)),
-          'Total Influenza': Number((year.INF_ALL / year.count).toFixed(2))
-        }))
-        .sort((a, b) => a.year - b.year);
+        const yearlyData = parsedData.data.reduce((acc, row) => {
+          const year = row.ISO_YEAR;
+          if (!acc[year]) {
+            acc[year] = {
+              year,
+              INF_A: 0,
+              INF_B: 0,
+              INF_ALL: 0,
+              count: 0
+            };
+          }
+          
+          if (row.INF_A != null && row.INF_B != null && row.INF_ALL != null) {
+            acc[year].INF_A += row.INF_A;
+            acc[year].INF_B += row.INF_B;
+            acc[year].INF_ALL += row.INF_ALL;
+            acc[year].count++;
+          }
+          return acc;
+        }, {});
 
-      createChart(data);
+        const data = Object.values(yearlyData)
+          .map(year => ({
+            year: year.year,
+            'Influenza A': Number((year.INF_A / year.count).toFixed(2)),
+            'Influenza B': Number((year.INF_B / year.count).toFixed(2)),
+            'Total Influenza': Number((year.INF_ALL / year.count).toFixed(2))
+          }))
+          .sort((a, b) => a.year - b.year);
+
+        createChart(data);
+      } catch (error) {
+        console.error('Error fetching or parsing data:', error);
+      }
     };
 
     const createChart = (data) => {
@@ -83,6 +95,7 @@ const InfluenzaChart = () => {
       const svg = d3.select(svgRef.current)
         .attr('width', dimensions.width)
         .attr('height', dimensions.height)
+        .style('font-family', "'Poppins', sans-serif")
         .append('g')
         .attr('transform', `translate(${margin.left},${margin.top})`);
 
@@ -271,29 +284,29 @@ const InfluenzaChart = () => {
         .text(d => d.name);
     };
 
-    processData();
+    fetchData();
 
     // Cleanup function
     return () => {
       d3.select('body').selectAll('.tooltip').remove();
     };
-  }, [dimensions, influenzaData, isLoading]); // Re-render when dimensions or data change
-
-  if (isLoading) {
-    return (
-      <div className="influenza-chart-container">
-        <div className="loading">Loading influenza data...</div>
-      </div>
-    );
-  }
+  }, [dimensions]); // Re-render when dimensions change
 
   return (
-    <div className="influenza-chart-container" ref={containerRef}>
-      <div className="influenza-chart-wrapper">
-        <h2 className="chart-title">Influenza Trend (2016-2022)</h2>
-        <svg ref={svgRef}></svg>
+    <>
+      <div className="section-intro">
+        <h2>Influenza Prevalence Trends (2016-2022)</h2>
+        <p>
+          Track the annual patterns of influenza transmission across the United States. The visualization shows how
+          both Influenza A and B variants have changed over time, with a notable impact during the COVID-19 pandemic.
+        </p>
       </div>
-    </div>
+      <div className="influenza-chart-container" ref={containerRef}>
+        <div className="influenza-chart-wrapper">
+          <svg ref={svgRef}></svg>
+        </div>
+      </div>
+    </>
   );
 };
 
