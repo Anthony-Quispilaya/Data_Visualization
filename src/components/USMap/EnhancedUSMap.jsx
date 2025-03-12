@@ -148,8 +148,10 @@ const EnhancedUSMap = () => {
 
   // Handle animation play/pause
   useEffect(() => {
-    if (!isPaused) {
-      // Clear any existing interval
+    if (!isPaused && availableYears && availableYears.length > 0) {
+      console.log("Play animation - setting up interval");
+      
+      // Clear any existing interval first
       if (animationInterval) {
         clearInterval(animationInterval);
       }
@@ -158,14 +160,22 @@ const EnhancedUSMap = () => {
       const interval = setInterval(() => {
         setSelectedYear(prevYear => {
           const currIndex = availableYears.indexOf(prevYear);
+          // If current year isn't found in availableYears, start from the first year
+          if (currIndex === -1) {
+            console.log("Current year not found in available years, starting from first year");
+            return availableYears[0];
+          }
           const nextIndex = (currIndex + 1) % availableYears.length;
+          console.log(`Advancing year from ${prevYear} to ${availableYears[nextIndex]}`);
           return availableYears[nextIndex];
         });
       }, 1000); // Change year every 1 second
       
       setAnimationInterval(interval);
+      console.log("Animation interval set", interval);
     } else if (animationInterval) {
       // Clear interval if animation is paused
+      console.log("Pausing animation - clearing interval");
       clearInterval(animationInterval);
       setAnimationInterval(null);
     }
@@ -176,7 +186,7 @@ const EnhancedUSMap = () => {
         clearInterval(animationInterval);
       }
     };
-  }, [isPaused, availableYears, animationInterval]);
+  }, [isPaused, availableYears]);
 
   // Load the Google Maps script
   useEffect(() => {
@@ -276,7 +286,12 @@ const EnhancedUSMap = () => {
   };
 
   const updateMapStyling = (currentMap = map, data = geoJsonData) => {
-    if (!currentMap || !data || !currentData) return;
+    if (!currentMap || !data || !currentData) {
+      console.log("Cannot update map styling - missing map, data, or currentData");
+      return;
+    }
+
+    console.log(`Updating map styling for year ${selectedYear}, mode ${visualizationMode}`);
 
     // Set styling based on visualization mode
     currentMap.data.setStyle(feature => {
@@ -287,7 +302,8 @@ const EnhancedUSMap = () => {
         let fillColor;
         
         if (visualizationMode === 'respiratory') {
-          fillColor = getColorByHealthMetric(currentData[stateCode].respiratoryIndex);
+          const respIndex = currentData[stateCode].respiratoryIndex;
+          fillColor = getColorByHealthMetric(respIndex);
         } else if (visualizationMode === 'airQuality' && isAqDataLoaded) {
           // Get pollutant data for this state and year
           const value = getPollutantValue(stateCode, selectedPollutant, selectedYear);
@@ -305,7 +321,7 @@ const EnhancedUSMap = () => {
           fillColor: fillColor,
           fillOpacity: 0.7,
           strokeColor: '#FFFFFF',
-          strokeWeight: 1,
+          strokeWeight: 1.2,
         };
       }
       
@@ -316,6 +332,21 @@ const EnhancedUSMap = () => {
         strokeWeight: 1,
       };
     });
+    
+    // Re-apply highlighting for selected state if there is one
+    if (selectedState) {
+      currentMap.data.forEach(feature => {
+        const stateName = feature.getProperty('name');
+        const stateCode = getStateCodeFromName(stateName);
+        
+        if (stateCode === selectedState) {
+          currentMap.data.overrideStyle(feature, {
+            strokeColor: '#1976D2',
+            strokeWeight: 2,
+          });
+        }
+      });
+    }
   };
 
   // Helper function to get state code from state name
@@ -438,7 +469,23 @@ const EnhancedUSMap = () => {
   };
   
   const togglePlayPause = () => {
+    console.log("Toggle play/pause from", isPaused, "to", !isPaused);
+    
+    // If we're about to play and we're at the last year, loop back to the first year
+    if (isPaused && selectedYear === availableYears[availableYears.length - 1]) {
+      console.log("Resetting to first year before playing");
+      setSelectedYear(availableYears[0]);
+    }
+    
+    // Toggle the pause state
     setIsPaused(!isPaused);
+    
+    // Force map update
+    if (map && geoJsonData && currentData) {
+      setTimeout(() => {
+        updateMapStyling();
+      }, 50);
+    }
   };
   
   // Function to get pollutant value for the selected state and year
