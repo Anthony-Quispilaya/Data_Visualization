@@ -1,5 +1,8 @@
 # The Health Impact of Air Pollution in the U.S.
 
+## Presentation
+[View the presentation slides (PDF)](./presentation/IT219%20Midterm%20Project.pdf)
+
 ## Project Overview
 This interactive dashboard visualizes the relationship between air pollution and respiratory health across the United States from 2016-2022. By analyzing data from the EPA Air Quality System and CDC Environmental Public Health Tracking Network, this project reveals geographical patterns and temporal trends in how air quality impacts public health.
 
