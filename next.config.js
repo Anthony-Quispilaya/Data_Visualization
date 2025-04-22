@@ -5,15 +5,13 @@ module.exports = {
         {
           source: "/(.*)",
           headers: [
-            // This allows your site to be embedded in any iframe
             {
               key: "X-Frame-Options",
-              value: "ALLOWALL",
+              value: "ALLOWALL", // Allows embedding anywhere
             },
-            // This sets CSP to allow embedding from anywhere (or restrict to your portfolio domain)
             {
               key: "Content-Security-Policy",
-              value: "frame-ancestors *",
+              value: "frame-ancestors *", // Or restrict to your portfolio domain for more security
             },
           ],
         },

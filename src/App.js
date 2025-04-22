@@ -112,8 +112,8 @@ function App() {
         </div>
 
         <footer className="dashboard-footer">
-          <p>© Anthony Quispilaya 2025</p>
-          <p>Data sources: EPA Air Quality System, CDC Respiratory Illness Surveillance</p>
+          <p>© Anthony Quispilaya 2025.</p>
+          <p>Data sources: EPA Air Quality System, CDC Respiratory Illness Surveillance.</p>
         </footer>
       </div>
     </DataProvider>
