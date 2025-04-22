@@ -1,5 +1,5 @@
-// next.config.js
-module.exports = {
+/** @type {import('next').NextConfig} */
+const nextConfig = {
     async headers() {
       return [
         {
@@ -7,14 +7,16 @@ module.exports = {
           headers: [
             {
               key: "X-Frame-Options",
-              value: "ALLOWALL", // Allows embedding anywhere
+              value: "ALLOWALL",
             },
             {
               key: "Content-Security-Policy",
-              value: "frame-ancestors *", // Or restrict to your portfolio domain for more security
+              value: "frame-ancestors *",
             },
           ],
         },
       ];
     },
   };
+  
+  module.exports = nextConfig;
